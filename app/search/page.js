@@ -15,7 +15,7 @@ const currencyFormat = new Intl.NumberFormat("en-US", {
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [region, setRegion] = useState('us');
+  const [region, setRegion] = useState('uk');
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);

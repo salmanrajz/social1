@@ -1,6 +1,6 @@
 'use client';
 
-export default function VideoCard({ video, numberFormat, currencyFormat }) {
+export default function VideoCard({ video, rank, numberFormat, currencyFormat }) {
   const {
     video_username,
     handle,
@@ -79,6 +79,11 @@ export default function VideoCard({ video, numberFormat, currencyFormat }) {
           alt={`Preview image for ${video_username || handle || "Unknown creator"}`}
           className="video-card__thumbnail"
         />
+        {rank && (
+          <div className="rank-badge">
+            <span className="rank-number">#{rank}</span>
+          </div>
+        )}
         <div className="viral-score-badge">
           <span className="viral-score-number">{viralScore}</span>
           <span className="viral-score-label">Viral Score</span>

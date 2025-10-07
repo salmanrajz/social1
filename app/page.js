@@ -20,7 +20,7 @@ export default function Home() {
   const productID = searchParams.get('productID');
   
   const [state, setState] = useState({
-    region: "us",
+    region: "uk",
     days: 1,
     limit: 12,
     page: 0, // Changed from offset to page (0-indexed)
@@ -238,6 +238,7 @@ export default function Home() {
           <VideoCard
             key={`${video.video_url || video.handle || index}`}
             video={video}
+            rank={state.page * state.limit + index + 1}
             numberFormat={numberFormat}
             currencyFormat={currencyFormat}
           />
