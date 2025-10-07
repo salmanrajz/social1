@@ -1,0 +1,268 @@
+const API_ENDPOINT = "https://www.social1.ai/api/videos/getTopVideos";
+
+const state = {
+  region: "uk",
+  days: 7,
+  limit: 12,
+  page: 1,
+  hasMore: true,
+  isLoading: false,
+  error: null,
+  noResults: false,
+};
+
+const dom = {
+  form: document.querySelector("#filtersForm"),
+  regionSelect: document.querySelector("#regionSelect"),
+  daysSelect: document.querySelector("#daysSelect"),
+  limitSelect: document.querySelector("#limitSelect"),
+  statusBanner: document.querySelector("#statusBanner"),
+  grid: document.querySelector("#videoGrid"),
+  prevButton: document.querySelector("#prevPageButton"),
+  nextButton: document.querySelector("#nextPageButton"),
+  pageIndicator: document.querySelector("#pageIndicator"),
+  template: document.querySelector("#videoCardTemplate"),
+  refreshButton: document.querySelector("#refreshButton"),
+};
+
+const numberFormat = new Intl.NumberFormat("en-GB", {
+  notation: "compact",
+  compactDisplay: "short",
+});
+
+const currencyFormat = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  maximumFractionDigits: 0,
+});
+
+async function fetchVideos() {
+  state.isLoading = true;
+  state.error = null;
+  state.noResults = false;
+  updateStatusBanner();
+  toggleControls(true);
+
+  let results = [];
+
+  try {
+    const url = new URL(API_ENDPOINT);
+    url.searchParams.set("region", state.region);
+    url.searchParams.set("days", state.days);
+    url.searchParams.set("limit", state.limit);
+    url.searchParams.set("page", state.page);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const { results: apiResults = [], has_more = false } = data;
+
+    results = apiResults;
+    state.hasMore = Boolean(has_more);
+  } catch (error) {
+    console.error("Failed to fetch videos", error);
+    state.error = "Unable to load videos right now. Please try again shortly.";
+    state.hasMore = false;
+  } finally {
+    state.noResults = !state.error && results.length === 0;
+    state.isLoading = false;
+    renderGrid(results);
+    updateStatusBanner();
+    toggleControls(false);
+    updatePaginationControls();
+  }
+}
+
+function renderGrid(results) {
+  dom.grid.replaceChildren();
+
+  const fragment = document.createDocumentFragment();
+
+  for (const video of results) {
+    const card = dom.template.content.cloneNode(true);
+    populateCard(card, video);
+    fragment.appendChild(card);
+  }
+
+  dom.grid.appendChild(fragment);
+}
+
+function populateCard(card, video) {
+  const {
+    video_username,
+    handle,
+    description,
+    video_url,
+    views,
+    likes,
+    comments,
+    gmv,
+    thumbnail,
+    time_posted,
+    product_data,
+  } = video;
+
+  const titleEl = card.querySelector(".video-card__title");
+  const descriptionEl = card.querySelector(".video-card__description");
+  const thumbnailEl = card.querySelector(".video-card__thumbnail");
+  const linkEl = card.querySelector(".video-card__link");
+  const creatorEl = card.querySelector(".video-card__creator");
+  const timestampEl = card.querySelector(".video-card__timestamp");
+
+  titleEl.textContent = video_username || handle || "Unknown creator";
+  descriptionEl.textContent = description || "No description provided.";
+  thumbnailEl.src = thumbnail || "https://placehold.co/640x360?text=Video+Preview";
+  thumbnailEl.alt = `Preview image for ${titleEl.textContent}`;
+  linkEl.href = video_url || "#";
+  linkEl.setAttribute("aria-label", `Open TikTok video by ${titleEl.textContent}`);
+  linkEl.textContent = "Watch video";
+  creatorEl.textContent = `@${handle || "unknown"}`;
+  timestampEl.textContent = formatRelativeTime(time_posted);
+
+  updateStat(card, "views", views);
+  updateStat(card, "likes", likes);
+  updateStat(card, "comments", comments);
+  updateStat(card, "gmv", gmv, { formatter: currencyFormat, fallback: "—" });
+
+  const productSection = card.querySelector("[data-product]");
+  if (product_data) {
+    const { name, price_display, shop_name, img_url, units_sold } = product_data;
+    const productImage = productSection.querySelector(".product__image");
+    const productTitle = productSection.querySelector(".product__title");
+    const productPrice = productSection.querySelector(".product__price");
+    const productMeta = productSection.querySelector(".product__meta");
+
+    productImage.src = img_url || "https://placehold.co/120x120?text=Product";
+    productImage.alt = name ? `Product image for ${name}` : "Product image";
+    productTitle.textContent = name || "Product information unavailable";
+    productPrice.textContent = price_display || "";
+
+    const metaItems = [];
+    if (shop_name) metaItems.push(shop_name);
+    if (typeof units_sold === "number") {
+      metaItems.push(`${numberFormat.format(units_sold)} sold`);
+    }
+    productMeta.textContent = metaItems.join(" • ");
+  } else {
+    productSection.remove();
+  }
+}
+
+function updateStat(card, name, value, { formatter, fallback = "0" } = {}) {
+  const el = card.querySelector(`[data-stat="${name}"]`);
+  if (!el) return;
+
+  if (value === null || value === undefined) {
+    el.textContent = fallback;
+    return;
+  }
+
+  const numeric = typeof value === "number" ? value : Number(value);
+  if (Number.isNaN(numeric)) {
+    el.textContent = fallback;
+    return;
+  }
+
+  el.textContent = formatter ? formatter.format(numeric) : numberFormat.format(numeric);
+}
+
+function formatRelativeTime(timestamp) {
+  if (!timestamp) return "Timestamp unavailable";
+
+  const isoLike = `${timestamp.replace(" ", "T")}Z`;
+  const postedDate = new Date(isoLike);
+  if (Number.isNaN(postedDate.getTime())) {
+    return timestamp;
+  }
+
+  const now = new Date();
+  const diffMs = now - postedDate;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) {
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    if (diffHours <= 0) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return diffMinutes <= 1 ? "just now" : `${diffMinutes} minutes ago`;
+    }
+    return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
+  }
+
+  if (diffDays < 7) {
+    return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+  }
+
+  return postedDate.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function updateStatusBanner() {
+  dom.statusBanner.classList.add("hidden");
+
+  if (state.isLoading) {
+    dom.statusBanner.textContent = "Loading top videos…";
+    dom.statusBanner.className = "status status--info";
+    dom.statusBanner.classList.remove("hidden");
+    return;
+  }
+
+  if (state.error) {
+    dom.statusBanner.textContent = state.error;
+    dom.statusBanner.className = "status status--error";
+    dom.statusBanner.classList.remove("hidden");
+    return;
+  }
+
+  if (state.noResults) {
+    dom.statusBanner.textContent = "No videos found for the selected filters.";
+    dom.statusBanner.className = "status status--empty";
+    dom.statusBanner.classList.remove("hidden");
+  }
+}
+
+function updatePaginationControls() {
+  dom.pageIndicator.textContent = `Page ${state.page}`;
+  dom.prevButton.disabled = state.page <= 1 || state.isLoading;
+  dom.nextButton.disabled = !state.hasMore || state.isLoading;
+}
+
+function toggleControls(disabled) {
+  dom.refreshButton.disabled = disabled;
+  dom.regionSelect.disabled = disabled;
+  dom.daysSelect.disabled = disabled;
+  dom.limitSelect.disabled = disabled;
+  dom.prevButton.disabled = disabled || state.page <= 1;
+  dom.nextButton.disabled = disabled || !state.hasMore;
+}
+
+dom.form.addEventListener("change", (event) => {
+  const { name, value } = event.target;
+  if (!(name in state)) return;
+
+  state[name] = name === "days" || name === "limit" ? Number(value) : value;
+  state.page = 1;
+  fetchVideos();
+});
+
+dom.refreshButton.addEventListener("click", () => {
+  fetchVideos();
+});
+
+dom.prevButton.addEventListener("click", () => {
+  if (state.page <= 1) return;
+  state.page -= 1;
+  fetchVideos();
+});
+
+dom.nextButton.addEventListener("click", () => {
+  if (!state.hasMore) return;
+  state.page += 1;
+  fetchVideos();
+});
+
+fetchVideos();

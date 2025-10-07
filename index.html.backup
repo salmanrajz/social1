@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social1 Top Videos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="page__header">
+      <div>
+        <h1>Social1 Top Videos</h1>
+        <p class="page__subtitle">Explore the latest top-performing TikTok videos by region.</p>
+      </div>
+      <button id="refreshButton" class="refresh-button" type="button" title="Refresh results">
+        ⟳ Refresh
+      </button>
+    </header>
+
+    <section class="panel">
+      <form id="filtersForm" class="filters">
+        <label class="filters__field">
+          <span>Region</span>
+          <select id="regionSelect" name="region">
+            <option value="uk">United Kingdom</option>
+            <option value="us">United States</option>
+          </select>
+        </label>
+
+        <label class="filters__field">
+          <span>Days</span>
+          <select id="daysSelect" name="days">
+            <option value="1">Last 24 hours</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </label>
+
+        <label class="filters__field">
+          <span>Results</span>
+          <select id="limitSelect" name="limit">
+            <option value="6">6 per page</option>
+            <option value="12" selected>12 per page</option>
+            <option value="24">24 per page</option>
+          </select>
+        </label>
+      </form>
+    </section>
+
+    <section id="statusBanner" class="status hidden" role="status" aria-live="polite"></section>
+
+    <section id="videoGrid" class="video-grid" aria-live="polite"></section>
+
+    <nav class="pagination" aria-label="Pagination controls">
+      <button id="prevPageButton" class="pagination__button" type="button">‹ Prev</button>
+      <span id="pageIndicator" class="pagination__indicator">Page 1</span>
+      <button id="nextPageButton" class="pagination__button" type="button">Next ›</button>
+    </nav>
+  </div>
+
+  <template id="videoCardTemplate">
+    <article class="video-card">
+      <div class="video-card__media">
+        <img class="video-card__thumbnail" alt="">
+      </div>
+      <div class="video-card__content">
+        <header class="video-card__header">
+          <h2 class="video-card__title"></h2>
+          <a class="video-card__link" target="_blank" rel="noopener noreferrer">Watch video</a>
+        </header>
+        <p class="video-card__description"></p>
+
+        <dl class="video-card__stats">
+          <div><dt>Views</dt><dd data-stat="views"></dd></div>
+          <div><dt>Likes</dt><dd data-stat="likes"></dd></div>
+          <div><dt>Comments</dt><dd data-stat="comments"></dd></div>
+          <div><dt>GMV</dt><dd data-stat="gmv"></dd></div>
+        </dl>
+
+        <section class="product" data-product>
+          <div class="product__image-wrapper">
+            <img class="product__image" alt="">
+          </div>
+          <div>
+            <h3 class="product__title"></h3>
+            <p class="product__price"></p>
+            <p class="product__meta"></p>
+          </div>
+        </section>
+
+        <footer class="video-card__footer">
+          <span class="video-card__creator"></span>
+          <time class="video-card__timestamp"></time>
+        </footer>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
