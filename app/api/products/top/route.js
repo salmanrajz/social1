@@ -33,7 +33,7 @@ export async function GET(request) {
     });
 
     if (!response.ok) {
-      throw new Error(\`Social1 API request failed: \${response.status} \${response.statusText}\`);
+      throw new Error(`Social1 API request failed: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
