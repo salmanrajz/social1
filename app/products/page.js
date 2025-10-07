@@ -1,0 +1,302 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+
+const numberFormat = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  compactDisplay: "short",
+});
+
+const currencyFormat = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+export default function ProductsPage() {
+  const [state, setState] = useState({
+    region: "uk",
+    days: 1,
+    limit: 12,
+    page: 0,
+    hasMore: true,
+    isLoading: false,
+    error: null,
+  });
+
+  const [products, setProducts] = useState([]);
+  const [storeQuery, setStoreQuery] = useState('');
+  const [categoryQuery, setCategoryQuery] = useState('');
+
+  const fetchProducts = async () => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      const params = new URLSearchParams({
+        region: state.region,
+        days: state.days.toString(),
+        limit: state.limit.toString(),
+        offset: state.page.toString(),
+      });
+
+      const response = await fetch(`/api/products/top?${params}`);
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const { results = [], has_more = false } = data;
+
+      setProducts(results);
+      setState(prev => ({
+        ...prev,
+        hasMore: Boolean(has_more),
+        isLoading: false,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch products", error);
+      setState(prev => ({
+        ...prev,
+        error: "Unable to load products. Please try again.",
+        hasMore: false,
+        isLoading: false,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [state.region, state.days, state.limit, state.page]);
+
+  const handleFilterChange = (name, value) => {
+    setState(prev => ({
+      ...prev,
+      [name]: name === "days" || name === "limit" ? Number(value) : value,
+      page: 0,
+    }));
+  };
+
+  const handlePageChange = (direction) => {
+    if (direction === 'prev' && state.page > 0) {
+      setState(prev => ({ ...prev, page: prev.page - 1 }));
+    } else if (direction === 'next' && state.hasMore) {
+      setState(prev => ({ ...prev, page: prev.page + 1 }));
+    }
+  };
+
+  // Filter products by store and category
+  const filteredProducts = products.filter(product => {
+    const matchesStore = !storeQuery || 
+      (product.shop_name && product.shop_name.toLowerCase().includes(storeQuery.toLowerCase()));
+    
+    const matchesCategory = !categoryQuery || 
+      (product.categories && product.categories.some(cat => 
+        cat.toLowerCase().includes(categoryQuery.toLowerCase())
+      ));
+    
+    return matchesStore && matchesCategory;
+  });
+
+  return (
+    <div className="container">
+      <header className="header">
+        <h1>🛍️ Top Viral Products</h1>
+        <p>Discover the hottest trending products on TikTok</p>
+        <nav className="nav">
+          <a href="/" className="nav-link">🎬 Trending Videos</a>
+          <a href="/search" className="nav-link">🔍 Find Products</a>
+          <a href="/products" className="nav-link nav-link--active">🛍️ Top Products</a>
+        </nav>
+      </header>
+
+      <div className="filters">
+        <div className="filter-group">
+          <label htmlFor="daysSelect">Top viral products from:</label>
+          <select
+            id="daysSelect"
+            value={state.days}
+            onChange={(e) => handleFilterChange('days', e.target.value)}
+            disabled={state.isLoading}
+          >
+            <option value="1">Today</option>
+            <option value="3">Last 3 days</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label htmlFor="storeSearch">Filter by store:</label>
+          <input
+            id="storeSearch"
+            type="text"
+            value={storeQuery}
+            onChange={(e) => setStoreQuery(e.target.value)}
+            placeholder="Search for stores..."
+            className="filter-input"
+          />
+        </div>
+
+        <div className="filter-group">
+          <label htmlFor="categorySearch">Filter by category:</label>
+          <input
+            id="categorySearch"
+            type="text"
+            value={categoryQuery}
+            onChange={(e) => setCategoryQuery(e.target.value)}
+            placeholder="Search categories..."
+            className="filter-input"
+          />
+        </div>
+
+        <div className="filter-group">
+          <label htmlFor="regionSelect">Region:</label>
+          <select
+            id="regionSelect"
+            value={state.region}
+            onChange={(e) => handleFilterChange('region', e.target.value)}
+            disabled={state.isLoading}
+          >
+            <option value="uk">United Kingdom</option>
+            <option value="us">United States</option>
+          </select>
+        </div>
+
+        <button
+          onClick={fetchProducts}
+          disabled={state.isLoading}
+          className="refresh-button"
+        >
+          {state.isLoading ? 'Loading...' : 'Refresh'}
+        </button>
+      </div>
+
+      {state.isLoading && (
+        <div className="status status--info">
+          Loading top products…
+        </div>
+      )}
+
+      {state.error && (
+        <div className="status status--error">
+          {state.error}
+        </div>
+      )}
+
+      {!state.isLoading && filteredProducts.length === 0 && products.length > 0 && (
+        <div className="status status--info">
+          No products match your search criteria. Try adjusting your filters.
+        </div>
+      )}
+
+      <div className="products-grid">
+        {filteredProducts.map((product, index) => {
+          const trendingScore = product.units_sold 
+            ? Math.min(100, Math.round((product.units_sold / 1000) + 50))
+            : 50;
+          
+          return (
+            <div 
+              key={product.product_id || index} 
+              className="product-card"
+              onClick={() => window.location.href = `/?productID=${product.product_id}`}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="product-card__image">
+                <img
+                  src={product.img_url || "https://placehold.co/300x300?text=Product"}
+                  alt={product.name || "Product image"}
+                  className="product-image"
+                />
+                <div className="rank-badge">
+                  <span className="rank-number">#{state.page * state.limit + products.indexOf(product) + 1}</span>
+                </div>
+                <div className="trending-badge">
+                  <span className="trending-badge__icon">🔥</span>
+                  <span className="trending-badge__score">{trendingScore}</span>
+                </div>
+              </div>
+              
+              <div className="product-card__content">
+                <h3 className="product-title">
+                  {product.name || "Product name unavailable"}
+                </h3>
+                
+                <div className="product-price">
+                  💰 {product.price_display || "Price unavailable"}
+                </div>
+                
+                <div className="product-stats-grid">
+                  {product.units_sold && (
+                    <div className="product-stat-box">
+                      <span className="product-stat-icon">📦</span>
+                      <div className="product-stat-content">
+                        <span className="product-stat-value">{numberFormat.format(product.units_sold)}</span>
+                        <span className="product-stat-label">Sold</span>
+                      </div>
+                    </div>
+                  )}
+                  {product.gmv && (
+                    <div className="product-stat-box">
+                      <span className="product-stat-icon">💵</span>
+                      <div className="product-stat-content">
+                        <span className="product-stat-value">{currencyFormat.format(parseFloat(product.gmv))}</span>
+                        <span className="product-stat-label">Revenue</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {product.shop_name && (
+                  <div className="product-shop-info">
+                    <span className="shop-icon">🏪</span>
+                    <span className="shop-name">{product.shop_name}</span>
+                  </div>
+                )}
+
+                {product.categories && product.categories.length > 0 && (
+                  <div className="category-tags">
+                    {product.categories.slice(0, 3).map((category, idx) => (
+                      <span key={idx} className="category-tag">
+                        #{category}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="product-cta">
+                  <span className="cta-text">View Trending Videos</span>
+                  <span className="cta-arrow">→</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange('prev')}
+          disabled={state.page <= 0 || state.isLoading}
+          className="page-button"
+        >
+          Previous
+        </button>
+
+        <span className="page-indicator">
+          Page {state.page + 1}
+        </span>
+
+        <button
+          onClick={() => handlePageChange('next')}
+          disabled={!state.hasMore || state.isLoading}
+          className="page-button"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+

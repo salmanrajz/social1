@@ -20,6 +20,15 @@ A modern Next.js application for discovering trending TikTok videos and viral pr
 - **Interactive CTA**: Animated "View Trending Videos →" button
 - **Product-to-Video Flow**: Seamless navigation from products to related videos
 
+### 🏆 Top Products Page
+- **Viral Rankings**: Top trending products ranked by performance
+- **Store Filter**: Search and filter by store name
+- **Category Filter**: Search products by category
+- **Time Period Selection**: View top products from today, 3 days, 7 days, or 30 days
+- **Region Support**: Filter by UK or US regions
+- **Smart Pagination**: Browse through ranked products
+- **Click-to-Videos**: Click any product to view its trending videos
+
 ### 🎨 Unique Design
 - **Purple Gradient Theme**: Distinctive visual identity different from competitors
 - **Animated Interactions**: Hover effects with purple glow and smooth transitions
@@ -49,18 +58,34 @@ social1/
 │   ├── api/
 │   │   ├── videos/
 │   │   │   └── route.js          # Video API route handler
-│   │   └── products/
-│   │       └── search/
-│   │           └── route.js      # Product search API route
+│   │   ├── video-insights/
+│   │   │   └── route.js          # Video insights API route
+│   │   ├── products/
+│   │   │   ├── search/
+│   │   │   │   └── route.js      # Product search API route
+│   │   │   └── top/
+│   │   │       └── route.js      # Top products API route
+│   │   ├── shops/
+│   │   │   └── search/
+│   │   │       └── route.js      # Shop search API route
+│   │   ├── auth/
+│   │   │   └── route.js          # Password authentication API
 │   ├── search/
 │   │   └── page.js               # Product search page
+│   ├── products/
+│   │   └── page.js               # Top products page
+│   ├── auth/
+│   │   └── page.js               # Password authentication page
 │   ├── components/
-│   │   └── VideoCard.js          # Video card component
+│   │   ├── VideoCard.js          # Video card component
+│   │   └── SessionTimer.js       # Session countdown timer
 │   ├── globals.css               # Global styles
 │   ├── layout.js                 # Root layout
 │   └── page.js                   # Main page component
+├── middleware.js                 # Password protection middleware
 ├── package.json                  # Dependencies
 ├── next.config.js               # Next.js configuration
+├── .gitignore                   # Git ignore rules
 └── README.md                    # This file
 ```
 
@@ -107,6 +132,44 @@ Searches for products from Social1 API with the following query parameters:
 **Example:**
 ```
 GET /api/products/search?query=socks&region=us
+```
+
+### GET /api/products/top
+
+Fetches top viral products from Social1 API with the following query parameters:
+
+- `limit` (number): Number of results per page (default: 12)
+- `offset` (number): Page number (0-indexed) (default: 0)
+- `days` (number): Time period in days (default: 1)
+- `region` (string): Region code - 'us' or 'uk' (default: 'uk')
+
+**Example:**
+```
+GET /api/products/top?limit=12&offset=0&days=1&region=uk
+```
+
+### GET /api/shops/search
+
+Searches for TikTok shops from Social1 API with the following query parameters:
+
+- `query` (string): Search term for shops (required)
+- `region` (string): Region code - 'us' or 'uk' (default: 'uk')
+
+**Example:**
+```
+GET /api/shops/search?query=beauty&region=uk
+```
+
+### GET /api/video-insights
+
+Fetches detailed insights for a specific video from Social1 API:
+
+- `videoID` (string): TikTok video ID (required)
+- `region` (string): Region code - 'us' or 'uk' (default: 'us')
+
+**Example:**
+```
+GET /api/video-insights?videoID=7556442101731364127&region=us
 ```
 
 ## Components
