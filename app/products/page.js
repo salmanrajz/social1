@@ -88,7 +88,7 @@ export default function ProductsPage() {
   // Filter products by store and category
   const filteredProducts = products.filter(product => {
     const matchesStore = !storeQuery || 
-      (product.shop_name && product.shop_name.toLowerCase().includes(storeQuery.toLowerCase()));
+      (product.shop && product.shop.shop_name && product.shop.shop_name.toLowerCase().includes(storeQuery.toLowerCase()));
     
     const matchesCategory = !categoryQuery || 
       (product.categories && product.categories.some(cat => 
@@ -205,7 +205,7 @@ export default function ProductsPage() {
             >
               <div className="product-card__image">
                 <img
-                  src={product.img_url || "https://placehold.co/300x300?text=Product"}
+                  src={product.product_img_url || "https://placehold.co/300x300?text=Product"}
                   alt={product.name || "Product image"}
                   className="product-image"
                 />
@@ -248,10 +248,10 @@ export default function ProductsPage() {
                   )}
                 </div>
 
-                {product.shop_name && (
+                {product.shop && product.shop.shop_name && (
                   <div className="product-shop-info">
                     <span className="shop-icon">🏪</span>
-                    <span className="shop-name">{product.shop_name}</span>
+                    <span className="shop-name">{product.shop.shop_name}</span>
                   </div>
                 )}
 
