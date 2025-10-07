@@ -7,12 +7,18 @@ export async function GET(request) {
     const offset = searchParams.get('offset') || '0';
     const days = searchParams.get('days') || '1';
     const region = searchParams.get('region') || 'uk';
+    const shopId = searchParams.get('shopId');
 
     const apiUrl = new URL('https://www.social1.ai/api/products/getTopProducts');
     apiUrl.searchParams.set('limit', limit);
     apiUrl.searchParams.set('offset', offset);
     apiUrl.searchParams.set('days', days);
     apiUrl.searchParams.set('region', region);
+    
+    // Add shopId if provided
+    if (shopId) {
+      apiUrl.searchParams.set('shopId', shopId);
+    }
 
     const response = await fetch(apiUrl.toString(), {
       method: 'GET',

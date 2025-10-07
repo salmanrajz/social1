@@ -22,11 +22,16 @@ export default function ProductsPage() {
     hasMore: true,
     isLoading: false,
     error: null,
+    shopId: null,
   });
 
   const [products, setProducts] = useState([]);
   const [storeQuery, setStoreQuery] = useState('');
   const [categoryQuery, setCategoryQuery] = useState('');
+  const [shopResults, setShopResults] = useState([]);
+  const [showShopDropdown, setShowShopDropdown] = useState(false);
+  const [isSearchingShops, setIsSearchingShops] = useState(false);
+  const [selectedShop, setSelectedShop] = useState(null);
 
   const fetchProducts = async () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -38,6 +43,11 @@ export default function ProductsPage() {
         limit: state.limit.toString(),
         offset: state.page.toString(),
       });
+
+      // Add shopId if a shop is selected
+      if (state.shopId) {
+        params.set('shopId', state.shopId);
+      }
 
       const response = await fetch(`/api/products/top?${params}`);
 
@@ -67,7 +77,43 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, [state.region, state.days, state.limit, state.page]);
+  }, [state.region, state.days, state.limit, state.page, state.shopId]);
+
+  // Search shops as user types
+  useEffect(() => {
+    const searchShops = async () => {
+      if (storeQuery.length < 2) {
+        setShopResults([]);
+        setShowShopDropdown(false);
+        return;
+      }
+
+      setIsSearchingShops(true);
+      try {
+        const params = new URLSearchParams({
+          query: storeQuery,
+          region: state.region,
+        });
+
+        const response = await fetch(`/api/shops/search?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setShopResults(data.results || []);
+          setShowShopDropdown(true);
+        }
+      } catch (error) {
+        console.error("Error searching shops:", error);
+      } finally {
+        setIsSearchingShops(false);
+      }
+    };
+
+    const debounce = setTimeout(() => {
+      searchShops();
+    }, 300);
+
+    return () => clearTimeout(debounce);
+  }, [storeQuery, state.region]);
 
   const handleFilterChange = (name, value) => {
     setState(prev => ({
@@ -85,17 +131,36 @@ export default function ProductsPage() {
     }
   };
 
-  // Filter products by store and category
+  const handleShopSelect = (shop) => {
+    setSelectedShop(shop);
+    setStoreQuery(shop.shop_name);
+    setShowShopDropdown(false);
+    setState(prev => ({
+      ...prev,
+      shopId: shop.shop_id,
+      page: 0, // Reset to first page
+    }));
+  };
+
+  const handleClearShop = () => {
+    setSelectedShop(null);
+    setStoreQuery('');
+    setShopResults([]);
+    setState(prev => ({
+      ...prev,
+      shopId: null,
+      page: 0,
+    }));
+  };
+
+  // Filter products by category only (shop filtering is done via API)
   const filteredProducts = products.filter(product => {
-    const matchesStore = !storeQuery || 
-      (product.shop && product.shop.shop_name && product.shop.shop_name.toLowerCase().includes(storeQuery.toLowerCase()));
-    
     const matchesCategory = !categoryQuery || 
       (product.categories && product.categories.some(cat => 
         cat.toLowerCase().includes(categoryQuery.toLowerCase())
       ));
     
-    return matchesStore && matchesCategory;
+    return matchesCategory;
   });
 
   return (
@@ -126,16 +191,51 @@ export default function ProductsPage() {
           </select>
         </div>
 
-        <div className="filter-group">
+        <div className="filter-group shop-search-group">
           <label htmlFor="storeSearch">Filter by store:</label>
-          <input
-            id="storeSearch"
-            type="text"
-            value={storeQuery}
-            onChange={(e) => setStoreQuery(e.target.value)}
-            placeholder="Search for stores..."
-            className="filter-input"
-          />
+          <div className="shop-search-wrapper">
+            <input
+              id="storeSearch"
+              type="text"
+              value={storeQuery}
+              onChange={(e) => setStoreQuery(e.target.value)}
+              onFocus={() => storeQuery.length >= 2 && setShowShopDropdown(true)}
+              placeholder="Search for stores..."
+              className="filter-input"
+            />
+            {isSearchingShops && (
+              <span className="shop-search-loading">🔍</span>
+            )}
+            {selectedShop && (
+              <button 
+                onClick={handleClearShop}
+                className="clear-shop-button"
+                type="button"
+              >
+                ✕
+              </button>
+            )}
+            {showShopDropdown && shopResults.length > 0 && (
+              <div className="shop-dropdown">
+                {shopResults.map((shop) => (
+                  <div
+                    key={shop.shop_id}
+                    className="shop-dropdown-item"
+                    onClick={() => handleShopSelect(shop)}
+                  >
+                    <div className="shop-dropdown-info">
+                      <div className="shop-dropdown-name">{shop.shop_name}</div>
+                      {shop.product_count && (
+                        <div className="shop-dropdown-meta">
+                          {shop.product_count} products
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="filter-group">
