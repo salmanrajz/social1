@@ -124,6 +124,7 @@ export default function Home() {
         <nav className="nav">
           <a href="/" className="nav-link nav-link--active">🎬 Trending Videos</a>
           <a href="/search" className="nav-link">🔍 Find Products</a>
+          <a href="/products" className="nav-link">🛍️ Top Products</a>
         </nav>
       </header>
 

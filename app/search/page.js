@@ -76,6 +76,7 @@ export default function SearchPage() {
         <nav className="nav">
           <a href="/" className="nav-link">🎬 Trending Videos</a>
           <a href="/search" className="nav-link nav-link--active">🔍 Find Products</a>
+          <a href="/products" className="nav-link">🛍️ Top Products</a>
         </nav>
       </header>
 
