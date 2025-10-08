@@ -89,18 +89,18 @@ export async function GET(request) {
       .map(a => JSON.parse(a.eventData));
 
     return NextResponse.json({
-      stats,
-      dailyActivity,
-      popularVideos: Object.entries(popularVideos)
+      stats: stats || {},
+      dailyActivity: dailyActivity || {},
+      popularVideos: Object.entries(popularVideos || {})
         .sort(([,a], [,b]) => b.count - a.count)
         .slice(0, 10)
         .map(([id, data]) => ({ id, ...data })),
-      popularProducts: Object.entries(popularProducts)
+      popularProducts: Object.entries(popularProducts || {})
         .sort(([,a], [,b]) => b.count - a.count)
         .slice(0, 10)
         .map(([id, data]) => ({ id, ...data })),
-      searchQueries: [...new Set(searchQueries)].slice(0, 10),
-      favoriteItems: favoriteItems.slice(0, 10),
+      searchQueries: [...new Set(searchQueries || [])].slice(0, 10),
+      favoriteItems: (favoriteItems || []).slice(0, 10),
     });
   } catch (error) {
     console.error('Analytics dashboard error:', error);

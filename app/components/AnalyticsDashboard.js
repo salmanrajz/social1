@@ -63,19 +63,19 @@ export default function AnalyticsDashboard() {
   }
 
   // Prepare chart data
-  const dailyData = Object.entries(analytics.dailyActivity).map(([date, count]) => ({
+  const dailyData = Object.entries(analytics.dailyActivity || {}).map(([date, count]) => ({
     date: format(new Date(date), 'MMM dd'),
     fullDate: date,
     events: count,
   })).sort((a, b) => new Date(a.fullDate) - new Date(b.fullDate));
 
   const activityData = [
-    { name: 'Page Views', value: analytics.stats.pageViews, color: '#ef4444' },
-    { name: 'Video Clicks', value: analytics.stats.videoClicks, color: '#3b82f6' },
-    { name: 'Product Clicks', value: analytics.stats.productClicks, color: '#10b981' },
-    { name: 'Searches', value: analytics.stats.searches, color: '#f59e0b' },
-    { name: 'Favorites', value: analytics.stats.favorites, color: '#8b5cf6' },
-    { name: 'Shares', value: analytics.stats.shares, color: '#ec4899' },
+    { name: 'Page Views', value: analytics.stats?.pageViews || 0, color: '#ef4444' },
+    { name: 'Video Clicks', value: analytics.stats?.videoClicks || 0, color: '#3b82f6' },
+    { name: 'Product Clicks', value: analytics.stats?.productClicks || 0, color: '#10b981' },
+    { name: 'Searches', value: analytics.stats?.searches || 0, color: '#f59e0b' },
+    { name: 'Favorites', value: analytics.stats?.favorites || 0, color: '#8b5cf6' },
+    { name: 'Shares', value: analytics.stats?.shares || 0, color: '#ec4899' },
   ];
 
   return (
@@ -101,42 +101,42 @@ export default function AnalyticsDashboard() {
         <div className="analytics-stat-card">
           <div className="stat-icon">📈</div>
           <div className="stat-content">
-            <h3>{analytics.stats.totalEvents}</h3>
+            <h3>{analytics.stats?.totalEvents || 0}</h3>
             <p>Total Events</p>
           </div>
         </div>
         <div className="analytics-stat-card">
           <div className="stat-icon">👁️</div>
           <div className="stat-content">
-            <h3>{analytics.stats.pageViews}</h3>
+            <h3>{analytics.stats?.pageViews || 0}</h3>
             <p>Page Views</p>
           </div>
         </div>
         <div className="analytics-stat-card">
           <div className="stat-icon">🎬</div>
           <div className="stat-content">
-            <h3>{analytics.stats.videoClicks}</h3>
+            <h3>{analytics.stats?.videoClicks || 0}</h3>
             <p>Video Clicks</p>
           </div>
         </div>
         <div className="analytics-stat-card">
           <div className="stat-icon">🛍️</div>
           <div className="stat-content">
-            <h3>{analytics.stats.productClicks}</h3>
+            <h3>{analytics.stats?.productClicks || 0}</h3>
             <p>Product Clicks</p>
           </div>
         </div>
         <div className="analytics-stat-card">
           <div className="stat-icon">🔍</div>
           <div className="stat-content">
-            <h3>{analytics.stats.searches}</h3>
+            <h3>{analytics.stats?.searches || 0}</h3>
             <p>Searches</p>
           </div>
         </div>
         <div className="analytics-stat-card">
           <div className="stat-icon">⭐</div>
           <div className="stat-content">
-            <h3>{analytics.stats.favorites}</h3>
+            <h3>{analytics.stats?.favorites || 0}</h3>
             <p>Favorites</p>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function AnalyticsDashboard() {
       <div className="analytics-content">
         <div className="analytics-section">
           <h3>🔥 Most Clicked Videos</h3>
-          {analytics.popularVideos.length > 0 ? (
+          {analytics.popularVideos?.length > 0 ? (
             <div className="popular-items">
               {analytics.popularVideos.slice(0, 5).map((video, index) => (
                 <div key={video.id} className="popular-item">
@@ -204,7 +204,7 @@ export default function AnalyticsDashboard() {
 
         <div className="analytics-section">
           <h3>🛍️ Most Clicked Products</h3>
-          {analytics.popularProducts.length > 0 ? (
+          {analytics.popularProducts?.length > 0 ? (
             <div className="popular-items">
               {analytics.popularProducts.slice(0, 5).map((product, index) => (
                 <div key={product.id} className="popular-item">
@@ -223,7 +223,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Search Queries */}
-      {analytics.searchQueries.length > 0 && (
+      {analytics.searchQueries?.length > 0 && (
         <div className="analytics-section">
           <h3>🔍 Recent Searches</h3>
           <div className="search-queries">
