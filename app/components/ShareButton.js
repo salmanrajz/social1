@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ShareButton({ 
   url, 
@@ -11,6 +11,23 @@ export default function ShareButton({
 }) {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Close share menu on Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showShareMenu) {
+        setShowShareMenu(false);
+      }
+    };
+
+    if (showShareMenu) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showShareMenu]);
 
   const shareUrl = typeof window !== 'undefined' ? window.location.origin + url : url;
   const shareTitle = `${title} - TikTok Viral Trends`;
@@ -100,7 +117,10 @@ export default function ShareButton({
   return (
     <div className="share-button-container">
       <button
-        onClick={() => setShowShareMenu(!showShareMenu)}
+        onClick={() => {
+          console.log('Share button clicked, current state:', showShareMenu);
+          setShowShareMenu(!showShareMenu);
+        }}
         className="share-button"
         aria-label="Share"
         title="Share this content"
@@ -110,62 +130,63 @@ export default function ShareButton({
       </button>
 
       {showShareMenu && (
-        <>
-          <div 
-            className="share-backdrop" 
-            onClick={() => setShowShareMenu(false)}
-          />
-          <div className="share-menu">
-            <div className="share-menu-header">
-              <h3>Share {type === 'video' ? 'Video' : 'Product'}</h3>
-              <button
-                onClick={() => setShowShareMenu(false)}
-                className="share-close"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="share-options">
-              {shareOptions.map((option) => (
-                <a
-                  key={option.name}
-                  href={option.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="share-option"
-                  style={{ '--option-color': option.color }}
-                  onClick={() => setShowShareMenu(false)}
-                >
-                  <span className="share-option-icon">{option.icon}</span>
-                  <span className="share-option-name">{option.name}</span>
-                </a>
-              ))}
-            </div>
-
-            <div className="share-copy">
-              <button
-                onClick={copyToClipboard}
-                className={`copy-button ${copied ? 'copied' : ''}`}
-              >
-                <span className="copy-icon">
-                  {copied ? '✅' : '📋'}
-                </span>
-                <span className="copy-text">
-                  {copied ? 'Copied!' : 'Copy Link'}
-                </span>
-              </button>
-              <div className="share-url">
-                <code>{shareUrl}</code>
-              </div>
-            </div>
-
-            <div className="share-footer">
-              <p>Share this {type} with your network!</p>
-            </div>
+        <div className="share-menu" style={{ zIndex: 9999 }}>
+          {console.log('Rendering share menu')}
+          <div className="share-menu-header">
+            <h3>Share {type === 'video' ? 'Video' : 'Product'}</h3>
+            <button
+              onClick={() => setShowShareMenu(false)}
+              className="share-close"
+              aria-label="Close"
+            >
+              ✕
+            </button>
           </div>
-        </>
+
+          <div className="share-options">
+            {shareOptions.slice(0, 4).map((option) => (
+              <a
+                key={option.name}
+                href={option.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="share-option"
+                style={{ '--option-color': option.color }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowShareMenu(false);
+                  // Open in new window with proper dimensions
+                  const popup = window.open(
+                    option.url,
+                    'share',
+                    'width=600,height=400,scrollbars=yes,resizable=yes'
+                  );
+                  if (!popup) {
+                    // Fallback if popup blocked
+                    window.location.href = option.url;
+                  }
+                }}
+              >
+                <span className="share-option-icon">{option.icon}</span>
+                <span className="share-option-name">{option.name}</span>
+              </a>
+            ))}
+          </div>
+
+          <div className="share-copy">
+            <button
+              onClick={copyToClipboard}
+              className={`copy-button ${copied ? 'copied' : ''}`}
+            >
+              <span className="copy-icon">
+                {copied ? '✅' : '📋'}
+              </span>
+              <span className="copy-text">
+                {copied ? 'Copied!' : 'Copy Link'}
+              </span>
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

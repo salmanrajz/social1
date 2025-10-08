@@ -25,7 +25,7 @@ export async function GET(request) {
     // Get user analytics data
     const analyticsResult = await client.execute(
       `SELECT * FROM UserAnalytics 
-       WHERE userId = ? AND timestamp >= ? 
+       WHERE userId = ? AND datetime(timestamp) >= datetime(?) 
        ORDER BY timestamp DESC`,
       [userId, startDate.toISOString()]
     );
@@ -60,7 +60,7 @@ export async function GET(request) {
     const popularProducts = {};
 
     videoClicks.forEach(click => {
-      const data = JSON.parse(click.eventData);
+      const data = typeof click.eventData === 'string' ? JSON.parse(click.eventData) : click.eventData;
       const videoId = data.videoId;
       if (!popularVideos[videoId]) {
         popularVideos[videoId] = { count: 0, data: data };
@@ -69,7 +69,7 @@ export async function GET(request) {
     });
 
     productClicks.forEach(click => {
-      const data = JSON.parse(click.eventData);
+      const data = typeof click.eventData === 'string' ? JSON.parse(click.eventData) : click.eventData;
       const productId = data.productId;
       if (!popularProducts[productId]) {
         popularProducts[productId] = { count: 0, data: data };
@@ -80,13 +80,19 @@ export async function GET(request) {
     // Get search queries
     const searchQueries = analytics
       .filter(a => a.eventType === 'search')
-      .map(a => JSON.parse(a.eventData).query)
+      .map(a => {
+        const data = typeof a.eventData === 'string' ? JSON.parse(a.eventData) : a.eventData;
+        return data?.query;
+      })
       .filter(Boolean);
 
     // Get favorite items
     const favoriteItems = analytics
-      .filter(a => a.eventType === 'favorite' && JSON.parse(a.eventData).action === 'add')
-      .map(a => JSON.parse(a.eventData));
+      .filter(a => {
+        const data = typeof a.eventData === 'string' ? JSON.parse(a.eventData) : a.eventData;
+        return a.eventType === 'favorite' && data?.action === 'add';
+      })
+      .map(a => typeof a.eventData === 'string' ? JSON.parse(a.eventData) : a.eventData);
 
     return NextResponse.json({
       stats: stats || {},

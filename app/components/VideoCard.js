@@ -1,6 +1,6 @@
 'use client';
 
-import ShareButton from './ShareButton';
+import ShareButton from './SimpleShareButton';
 import { FavoriteButton } from './Favorites';
 import { useAnalytics } from '../hooks/useAnalytics';
 

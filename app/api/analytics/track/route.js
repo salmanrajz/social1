@@ -23,10 +23,11 @@ export async function POST(request) {
 
     // Store analytics event in database
     const analyticsId = `analytics_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const eventTimestamp = timestamp || new Date().toISOString();
     await client.execute(
       `INSERT INTO UserAnalytics (id, userId, eventType, eventData, timestamp) 
        VALUES (?, ?, ?, ?, ?)`,
-      [analyticsId, userId, event, JSON.stringify(data), timestamp]
+      [analyticsId, userId, event, JSON.stringify(data), eventTimestamp]
     );
 
     return NextResponse.json({ success: true });
