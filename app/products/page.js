@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import ModernHeader from '../components/ModernHeader';
 import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import KeyboardShortcuts from '../components/KeyboardShortcuts';
 import ShareButton from '../components/ShareButton';
@@ -176,7 +176,7 @@ export default function ProductsPage() {
 
   return (
     <div className="container">
-      <Header />
+      <ModernHeader />
 
       <div className="filters">
         <div className="filter-group">

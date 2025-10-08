@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import ModernHeader from '../components/ModernHeader';
 import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import KeyboardShortcuts from '../components/KeyboardShortcuts';
 import ShareButton from '../components/ShareButton';
@@ -85,7 +85,7 @@ export default function SearchPage() {
 
   return (
     <div className="container">
-      <Header />
+      <ModernHeader />
 
       <form onSubmit={handleSearch} className="search-form">
         <div className="search-input-group">

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import VideoCard from './components/VideoCard';
 import VideoCardSkeleton from './components/VideoCardSkeleton';
-import Header from './components/Header';
+import ModernHeader from './components/ModernHeader';
 import KeyboardShortcuts from './components/KeyboardShortcuts';
 import { useCompactView } from './components/CompactView';
 import { CompactVideoCard } from './components/CompactView';
@@ -137,9 +137,10 @@ export default function Home() {
 
   return (
     <div className="container">
-      <Header />
-
-      <div className="filters">
+      <ModernHeader />
+      
+      <main className="main-content">
+        <div className="filters">
         <div className="filter-group">
           <label htmlFor="daysSelect">Most viral content from:</label>
           <select
@@ -297,7 +298,8 @@ export default function Home() {
         canGoNext={state.hasMore && !state.isLoading}
       />
 
-      <AutoRefreshToggle onRefresh={fetchVideos} />
+        <AutoRefreshToggle onRefresh={fetchVideos} />
+      </main>
     </div>
   );
 }
