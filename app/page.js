@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import VideoCard from './components/VideoCard';
+import VideoCardSkeleton from './components/VideoCardSkeleton';
+import Header from './components/Header';
+import KeyboardShortcuts from './components/KeyboardShortcuts';
+import { useCompactView } from './components/CompactView';
+import { CompactVideoCard } from './components/CompactView';
+import { useAutoRefresh, AutoRefreshToggle } from './components/AutoRefresh';
+import { useAnalytics } from './hooks/useAnalytics';
 
 const numberFormat = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -18,6 +25,9 @@ const currencyFormat = new Intl.NumberFormat("en-US", {
 export default function Home() {
   const searchParams = useSearchParams();
   const productID = searchParams.get('productID');
+  const { isCompact } = useCompactView();
+  const { triggerRefresh } = useAutoRefresh();
+  const { trackPageView, trackPagination } = useAnalytics();
   
   const [state, setState] = useState({
     region: "uk",
@@ -88,6 +98,15 @@ export default function Home() {
     fetchVideos();
   }, [state.region, state.days, state.limit, state.page, productID]);
 
+  useEffect(() => {
+    trackPageView(productID ? 'video-detail' : 'home', {
+      productID,
+      region: state.region,
+      days: state.days,
+      contentType: state.contentType,
+    });
+  }, [productID, state.region, state.days, state.contentType, trackPageView]);
+
   const handleFilterChange = (name, value) => {
     setState(prev => ({
       ...prev,
@@ -98,15 +117,19 @@ export default function Home() {
 
   const handlePageChange = (direction) => {
     if (direction === 'prev' && state.page > 0) {
+      const newPage = Math.max(0, state.page - 1);
       setState(prev => ({
         ...prev,
-        page: Math.max(0, prev.page - 1)
+        page: newPage
       }));
+      trackPagination(newPage, state.limit);
     } else if (direction === 'next' && state.hasMore) {
+      const newPage = state.page + 1;
       setState(prev => ({
         ...prev,
-        page: prev.page + 1
+        page: newPage
       }));
+      trackPagination(newPage, state.limit);
     }
   };
 
@@ -114,19 +137,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      <header className="header">
-        <h1>🔥 TikTok Viral Trends</h1>
-        {productID ? (
-          <p>Videos featuring this product</p>
-        ) : (
-          <p>Discover what's trending and going viral on TikTok</p>
-        )}
-        <nav className="nav">
-          <a href="/" className="nav-link nav-link--active">🎬 Trending Videos</a>
-          <a href="/search" className="nav-link">🔍 Find Products</a>
-          <a href="/products" className="nav-link">🛍️ Top Products</a>
-        </nav>
-      </header>
+      <Header />
 
       <div className="filters">
         <div className="filter-group">
@@ -216,12 +227,6 @@ export default function Home() {
         )}
       </div>
 
-      {state.isLoading && (
-        <div className="status status--info">
-          Loading top videos…
-        </div>
-      )}
-
       {state.error && (
         <div className="status status--error">
           {state.error}
@@ -235,15 +240,32 @@ export default function Home() {
       )}
 
       <div className="video-grid">
-        {videos.map((video, index) => (
-          <VideoCard
-            key={`${video.video_url || video.handle || index}`}
-            video={video}
-            rank={state.page * state.limit + index + 1}
-            numberFormat={numberFormat}
-            currencyFormat={currencyFormat}
-          />
-        ))}
+        {state.isLoading ? (
+          // Show skeletons while loading
+          Array.from({ length: state.limit }).map((_, index) => (
+            <VideoCardSkeleton key={`skeleton-${index}`} />
+          ))
+        ) : (
+          videos.map((video, index) => 
+            isCompact ? (
+              <CompactVideoCard
+                key={`${video.video_url || video.handle || index}`}
+                video={video}
+                rank={state.page * state.limit + index + 1}
+                numberFormat={numberFormat}
+                currencyFormat={currencyFormat}
+              />
+            ) : (
+              <VideoCard
+                key={`${video.video_url || video.handle || index}`}
+                video={video}
+                rank={state.page * state.limit + index + 1}
+                numberFormat={numberFormat}
+                currencyFormat={currencyFormat}
+              />
+            )
+          )
+        )}
       </div>
 
       <div className="pagination">
@@ -267,6 +289,15 @@ export default function Home() {
           Next
         </button>
       </div>
+
+      <KeyboardShortcuts
+        onPrevPage={() => handlePageChange('prev')}
+        onNextPage={() => handlePageChange('next')}
+        canGoPrev={state.page > 0 && !state.isLoading}
+        canGoNext={state.hasMore && !state.isLoading}
+      />
+
+      <AutoRefreshToggle onRefresh={fetchVideos} />
     </div>
   );
 }

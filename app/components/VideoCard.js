@@ -1,5 +1,9 @@
 'use client';
 
+import ShareButton from './ShareButton';
+import { FavoriteButton } from './Favorites';
+import { useAnalytics } from '../hooks/useAnalytics';
+
 export default function VideoCard({ video, rank, numberFormat, currencyFormat }) {
   const {
     video_username,
@@ -15,6 +19,8 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
     product_data,
     is_ad,
   } = video;
+  
+  const { trackVideoClick } = useAnalytics();
 
   const formatRelativeTime = (timestamp) => {
     if (!timestamp) return "Timestamp unavailable";
@@ -48,6 +54,23 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
     });
   };
 
+  const isNew = (timestamp) => {
+    if (!timestamp) return false;
+
+    const isoLike = `${timestamp.replace(" ", "T")}Z`;
+    const postedDate = new Date(isoLike);
+    if (Number.isNaN(postedDate.getTime())) {
+      return false;
+    }
+
+    const now = new Date();
+    const diffMs = now - postedDate;
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    // Consider "new" if posted within last 24 hours
+    return diffHours < 24;
+  };
+
   const formatStat = (value, formatter, fallback = "0") => {
     if (value === null || value === undefined) {
       return fallback;
@@ -71,8 +94,20 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
 
   const viralScore = calculateViralScore();
 
+  const handleVideoClick = () => {
+    trackVideoClick(video_url || handle, {
+      video_username,
+      handle,
+      is_ad,
+      rank,
+      views,
+      likes,
+      comments,
+    });
+  };
+
   return (
-    <div className="video-card">
+    <div className="video-card" onClick={handleVideoClick}>
       <div className="video-card__header">
         <img
           src={thumbnail || "https://placehold.co/640x360?text=Video+Preview"}
@@ -89,6 +124,7 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
           <span className="viral-score-label">Viral Score</span>
         </div>
         {is_ad && <div className="ad-badge">Sponsored</div>}
+        {isNew(time_posted) && <div className="new-badge">🆕 NEW</div>}
         <div className="video-card__overlay">
           <a
             href={video_url || "#"}
@@ -202,6 +238,22 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
             </div>
           </div>
         )}
+
+        {/* Actions */}
+        <div className="video-card__actions">
+          <FavoriteButton 
+            item={video} 
+            type="video" 
+            size="small" 
+          />
+          <ShareButton
+            url={`/?productID=${product_data?.product_id || 'video'}`}
+            title={`${video_username || handle || 'Unknown creator'} - Viral TikTok Video`}
+            description={`Check out this viral TikTok video by ${video_username || handle || 'Unknown creator'}! ${description ? description.substring(0, 100) + '...' : 'Amazing content!'}`}
+            hashtags={['TikTokViral', 'TrendingVideo', 'ViralContent']}
+            type="video"
+          />
+        </div>
       </div>
     </div>
   );

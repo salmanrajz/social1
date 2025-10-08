@@ -1,6 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Header from '../components/Header';
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
+import KeyboardShortcuts from '../components/KeyboardShortcuts';
+import ShareButton from '../components/ShareButton';
+import { FavoriteButton } from '../components/Favorites';
+import SearchHistory from '../components/SearchHistory';
+import { useToast } from '../components/Toast';
 
 const numberFormat = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -20,6 +27,7 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const toast = useToast();
 
   const performSearch = async (query) => {
     if (!query.trim()) {
@@ -46,9 +54,16 @@ export default function SearchPage() {
 
       const data = await response.json();
       setProducts(data.results || []);
+      
+      if (data.results && data.results.length > 0) {
+        toast.success(`Found ${data.results.length} products!`);
+      } else {
+        toast.warning('No products found for your search');
+      }
     } catch (error) {
       console.error("Failed to search products", error);
       setError("Unable to search products right now. Please try again shortly.");
+      toast.error('Search failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -70,15 +85,7 @@ export default function SearchPage() {
 
   return (
     <div className="container">
-      <header className="header">
-        <h1>🛍️ Product Finder</h1>
-        <p>Search for trending TikTok products and see what's selling</p>
-        <nav className="nav">
-          <a href="/" className="nav-link">🎬 Trending Videos</a>
-          <a href="/search" className="nav-link nav-link--active">🔍 Find Products</a>
-          <a href="/products" className="nav-link">🛍️ Top Products</a>
-        </nav>
-      </header>
+      <Header />
 
       <form onSubmit={handleSearch} className="search-form">
         <div className="search-input-group">
@@ -93,6 +100,7 @@ export default function SearchPage() {
             {isLoading && (
               <span className="search-loading-indicator">🔍 Searching...</span>
             )}
+            <SearchHistory onSearch={setSearchQuery} currentQuery={searchQuery} />
           </div>
           <select
             value={region}
@@ -104,12 +112,6 @@ export default function SearchPage() {
           </select>
         </div>
       </form>
-
-      {isLoading && (
-        <div className="status status--info">
-          Searching for products...
-        </div>
-      )}
 
       {error && (
         <div className="status status--error">
@@ -123,7 +125,7 @@ export default function SearchPage() {
         </div>
       )}
 
-      {products.length > 0 && (
+      {products.length > 0 && !isLoading && (
         <div className="results-header">
           <h2>Search Results for "{searchQuery}"</h2>
           <p>{products.length} product{products.length !== 1 ? 's' : ''} found</p>
@@ -131,7 +133,13 @@ export default function SearchPage() {
       )}
 
       <div className="products-grid">
-        {products.map((product, index) => {
+        {isLoading ? (
+          // Show skeletons while loading
+          Array.from({ length: 8 }).map((_, index) => (
+            <ProductCardSkeleton key={`skeleton-${index}`} />
+          ))
+        ) : (
+          products.map((product, index) => {
           const trendingScore = product.units_sold 
             ? Math.min(100, Math.round((product.units_sold / 1000) + 50))
             : 50;
@@ -206,11 +214,35 @@ export default function SearchPage() {
                   <span className="cta-text">View Trending Videos</span>
                   <span className="cta-arrow">→</span>
                 </div>
+
+                {/* Actions */}
+                <div className="product-card__actions">
+                  <FavoriteButton 
+                    item={product} 
+                    type="product" 
+                    size="small" 
+                  />
+                  <ShareButton
+                    url={`/?productID=${product.product_id}`}
+                    title={`${product.name || 'Trending Product'} - TikTok Viral Trends`}
+                    description={`Check out this trending product: ${product.name || 'Amazing product'}! ${product.price_display ? `Only ${product.price_display}` : ''} - Discover more viral products!`}
+                    hashtags={['TikTokViral', 'TrendingProduct', 'ViralShopping']}
+                    type="product"
+                  />
+                </div>
               </div>
             </div>
           );
-        })}
+          })
+        )}
       </div>
+
+      <KeyboardShortcuts
+        onPrevPage={() => {}}
+        onNextPage={() => {}}
+        canGoPrev={false}
+        canGoNext={false}
+      />
     </div>
   );
 }

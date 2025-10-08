@@ -1,6 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Header from '../components/Header';
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
+import KeyboardShortcuts from '../components/KeyboardShortcuts';
+import ShareButton from '../components/ShareButton';
+import { FavoriteButton } from '../components/Favorites';
+import { useCompactView } from '../components/CompactView';
+import { CompactProductCard } from '../components/CompactView';
+import { useAutoRefresh, AutoRefreshToggle } from '../components/AutoRefresh';
 
 const numberFormat = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -14,6 +22,9 @@ const currencyFormat = new Intl.NumberFormat("en-US", {
 });
 
 export default function ProductsPage() {
+  const { isCompact } = useCompactView();
+  const { triggerRefresh } = useAutoRefresh();
+  
   const [state, setState] = useState({
     region: "uk",
     days: 1,
@@ -165,15 +176,7 @@ export default function ProductsPage() {
 
   return (
     <div className="container">
-      <header className="header">
-        <h1>🛍️ Top Viral Products</h1>
-        <p>Discover the hottest trending products on TikTok</p>
-        <nav className="nav">
-          <a href="/" className="nav-link">🎬 Trending Videos</a>
-          <a href="/search" className="nav-link">🔍 Find Products</a>
-          <a href="/products" className="nav-link nav-link--active">🛍️ Top Products</a>
-        </nav>
-      </header>
+      <Header />
 
       <div className="filters">
         <div className="filter-group">
@@ -272,12 +275,6 @@ export default function ProductsPage() {
         </button>
       </div>
 
-      {state.isLoading && (
-        <div className="status status--info">
-          Loading top products…
-        </div>
-      )}
-
       {state.error && (
         <div className="status status--error">
           {state.error}
@@ -291,12 +288,26 @@ export default function ProductsPage() {
       )}
 
       <div className="products-grid">
-        {filteredProducts.map((product, index) => {
+        {state.isLoading ? (
+          // Show skeletons while loading
+          Array.from({ length: state.limit }).map((_, index) => (
+            <ProductCardSkeleton key={`skeleton-${index}`} />
+          ))
+        ) : (
+          filteredProducts.map((product, index) => {
           const trendingScore = product.units_sold 
             ? Math.min(100, Math.round((product.units_sold / 1000) + 50))
             : 50;
           
-          return (
+          return isCompact ? (
+            <CompactProductCard
+              key={product.product_id || index}
+              product={product}
+              rank={state.page * state.limit + products.indexOf(product) + 1}
+              numberFormat={numberFormat}
+              currencyFormat={currencyFormat}
+            />
+          ) : (
             <div 
               key={product.product_id || index} 
               className="product-card"
@@ -369,10 +380,27 @@ export default function ProductsPage() {
                   <span className="cta-text">View Trending Videos</span>
                   <span className="cta-arrow">→</span>
                 </div>
+
+                {/* Actions */}
+                <div className="product-card__actions">
+                  <FavoriteButton 
+                    item={product} 
+                    type="product" 
+                    size="small" 
+                  />
+                  <ShareButton
+                    url={`/?productID=${product.product_id}`}
+                    title={`${product.name || 'Top Viral Product'} - TikTok Viral Trends`}
+                    description={`Check out this top viral product: ${product.name || 'Amazing product'}! ${product.price_display ? `Only ${product.price_display}` : ''} - Discover more trending products!`}
+                    hashtags={['TikTokViral', 'TopProduct', 'ViralShopping']}
+                    type="product"
+                  />
+                </div>
               </div>
             </div>
           );
-        })}
+          })
+        )}
       </div>
 
       <div className="pagination">
@@ -396,6 +424,15 @@ export default function ProductsPage() {
           Next
         </button>
       </div>
+
+      <KeyboardShortcuts
+        onPrevPage={() => handlePageChange('prev')}
+        onNextPage={() => handlePageChange('next')}
+        canGoPrev={state.page > 0 && !state.isLoading}
+        canGoNext={state.hasMore && !state.isLoading}
+      />
+
+      <AutoRefreshToggle onRefresh={fetchProducts} />
     </div>
   );
 }
