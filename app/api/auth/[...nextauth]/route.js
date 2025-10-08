@@ -2,14 +2,15 @@ import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import GitHubProvider from 'next-auth/providers/github'
-import { PrismaAdapter } from '@auth/prisma-adapter'
-import { PrismaClient } from '@prisma/client'
+import { createClient } from '@libsql/client'
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+})
 
 const handler = NextAuth({
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -22,18 +23,18 @@ const handler = NextAuth({
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
-        })
+        const userResult = await client.execute(
+          'SELECT * FROM User WHERE email = ?',
+          [credentials.email]
+        )
 
-        if (!user) {
+        if (userResult.rows.length === 0) {
           return null
         }
 
-        // For now, we'll use a simple password check
-        // In production, you should hash passwords properly
+        const user = userResult.rows[0]
+
+        // Check password
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password || '')
 
         if (!isPasswordValid) {

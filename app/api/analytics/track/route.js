@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { PrismaClient } from '@prisma/client';
+import { createClient } from '@libsql/client';
 
-const prisma = new PrismaClient();
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
 export async function POST(request) {
   try {
@@ -19,14 +22,12 @@ export async function POST(request) {
     }
 
     // Store analytics event in database
-    await prisma.userAnalytics.create({
-      data: {
-        userId,
-        event,
-        data: JSON.stringify(data),
-        timestamp: new Date(timestamp),
-      },
-    });
+    const analyticsId = `analytics_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    await client.execute(
+      `INSERT INTO UserAnalytics (id, userId, eventType, eventData, timestamp) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [analyticsId, userId, event, JSON.stringify(data), timestamp]
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

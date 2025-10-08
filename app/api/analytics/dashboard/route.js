@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { PrismaClient } from '@prisma/client';
+import { createClient } from '@libsql/client';
 
-const prisma = new PrismaClient();
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
 export async function GET(request) {
   try {
@@ -20,33 +23,29 @@ export async function GET(request) {
     startDate.setDate(startDate.getDate() - days);
 
     // Get user analytics data
-    const analytics = await prisma.userAnalytics.findMany({
-      where: {
-        userId,
-        timestamp: {
-          gte: startDate,
-        },
-      },
-      orderBy: {
-        timestamp: 'desc',
-      },
-    });
+    const analyticsResult = await client.execute(
+      `SELECT * FROM UserAnalytics 
+       WHERE userId = ? AND timestamp >= ? 
+       ORDER BY timestamp DESC`,
+      [userId, startDate.toISOString()]
+    );
+    const analytics = analyticsResult.rows;
 
     // Process analytics data
     const stats = {
       totalEvents: analytics.length,
-      pageViews: analytics.filter(a => a.event === 'page_view').length,
-      videoClicks: analytics.filter(a => a.event === 'video_click').length,
-      productClicks: analytics.filter(a => a.event === 'product_click').length,
-      searches: analytics.filter(a => a.event === 'search').length,
-      favorites: analytics.filter(a => a.event === 'favorite').length,
-      shares: analytics.filter(a => a.event === 'share').length,
+      pageViews: analytics.filter(a => a.eventType === 'page_view').length,
+      videoClicks: analytics.filter(a => a.eventType === 'video_click').length,
+      productClicks: analytics.filter(a => a.eventType === 'product_click').length,
+      searches: analytics.filter(a => a.eventType === 'search').length,
+      favorites: analytics.filter(a => a.eventType === 'favorite').length,
+      shares: analytics.filter(a => a.eventType === 'share').length,
     };
 
     // Get daily activity
     const dailyActivity = {};
     analytics.forEach(analytics => {
-      const date = analytics.timestamp.toISOString().split('T')[0];
+      const date = new Date(analytics.timestamp).toISOString().split('T')[0];
       if (!dailyActivity[date]) {
         dailyActivity[date] = 0;
       }
@@ -54,14 +53,14 @@ export async function GET(request) {
     });
 
     // Get most popular content
-    const videoClicks = analytics.filter(a => a.event === 'video_click');
-    const productClicks = analytics.filter(a => a.event === 'product_click');
+    const videoClicks = analytics.filter(a => a.eventType === 'video_click');
+    const productClicks = analytics.filter(a => a.eventType === 'product_click');
     
     const popularVideos = {};
     const popularProducts = {};
 
     videoClicks.forEach(click => {
-      const data = JSON.parse(click.data);
+      const data = JSON.parse(click.eventData);
       const videoId = data.videoId;
       if (!popularVideos[videoId]) {
         popularVideos[videoId] = { count: 0, data: data };
@@ -70,7 +69,7 @@ export async function GET(request) {
     });
 
     productClicks.forEach(click => {
-      const data = JSON.parse(click.data);
+      const data = JSON.parse(click.eventData);
       const productId = data.productId;
       if (!popularProducts[productId]) {
         popularProducts[productId] = { count: 0, data: data };
@@ -80,14 +79,14 @@ export async function GET(request) {
 
     // Get search queries
     const searchQueries = analytics
-      .filter(a => a.event === 'search')
-      .map(a => JSON.parse(a.data).query)
+      .filter(a => a.eventType === 'search')
+      .map(a => JSON.parse(a.eventData).query)
       .filter(Boolean);
 
     // Get favorite items
     const favoriteItems = analytics
-      .filter(a => a.event === 'favorite' && JSON.parse(a.data).action === 'add')
-      .map(a => JSON.parse(a.data));
+      .filter(a => a.eventType === 'favorite' && JSON.parse(a.eventData).action === 'add')
+      .map(a => JSON.parse(a.eventData));
 
     return NextResponse.json({
       stats,

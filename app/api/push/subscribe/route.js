@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { PrismaClient } from '@prisma/client';
+import { createClient } from '@libsql/client';
 
-const prisma = new PrismaClient();
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
 export async function POST(request) {
   try {
@@ -19,12 +22,10 @@ export async function POST(request) {
     }
 
     // Store subscription in database
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        pushSubscription: JSON.stringify(subscription),
-      },
-    });
+    await client.execute(
+      'UPDATE User SET pushSubscription = ? WHERE id = ?',
+      [JSON.stringify(subscription), userId]
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
