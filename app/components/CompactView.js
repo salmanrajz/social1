@@ -185,8 +185,8 @@ export const CompactVideoCard = ({ video, rank, numberFormat, currencyFormat }) 
 
 // Compact Product Card Component
 export const CompactProductCard = ({ product, rank, numberFormat, currencyFormat }) => {
-  const trendingScore = product.units_sold 
-    ? Math.min(100, Math.round((product.units_sold / 1000) + 50))
+  const trendingScore = product.gmv 
+    ? Math.min(100, Math.round((parseFloat(product.gmv) / 10000) + 50))
     : 50;
 
   return (
@@ -215,9 +215,6 @@ export const CompactProductCard = ({ product, rank, numberFormat, currencyFormat
         </div>
 
         <div className="compact-product-card__stats">
-          {product.units_sold && (
-            <span className="compact-stat">📦 {numberFormat.format(product.units_sold)}</span>
-          )}
           {product.gmv && (
             <span className="compact-stat">💵 {currencyFormat.format(parseFloat(product.gmv))}</span>
           )}

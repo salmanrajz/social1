@@ -218,12 +218,7 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
                 {product_data.price_display || ""}
               </p>
               <p className="product__meta">
-                {[
-                  product_data.shop_name,
-                  typeof product_data.units_sold === "number" 
-                    ? `${numberFormat.format(product_data.units_sold)} sold`
-                    : null
-                ].filter(Boolean).join(" • ")}
+                {product_data.shop_name}
               </p>
               {product_data.product_id && (
                 <a 
