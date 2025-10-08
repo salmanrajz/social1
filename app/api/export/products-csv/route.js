@@ -5,32 +5,33 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const days = parseInt(searchParams.get('days')) || 3;
     
-    // Fetch top products data from the last 3 days
-    const social1ApiUrl = 'https://social1.ai/api/v1/topViralProducts';
-    const response = await fetch(social1ApiUrl, {
-      method: 'POST',
+    // Fetch real data from our working API endpoint
+    const internalApiUrl = new URL('http://localhost:3000/api/products/top');
+    internalApiUrl.searchParams.set('days', days);
+    internalApiUrl.searchParams.set('limit', '1000');
+    internalApiUrl.searchParams.set('region', 'uk');
+    internalApiUrl.searchParams.set('offset', '0');
+
+    const response = await fetch(internalApiUrl.toString(), {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Cookie': 'session=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzM4YjQ4YzQ4YjQ4YzQ4YjQ4YzQ4YzQiLCJpYXQiOjE3MzY5NzQ4MDB9.example'
-      },
-      body: JSON.stringify({
-        days: days,
-        limit: 1000, // Get more products for comprehensive data
-        region: 'uk'
-      })
+        'Accept': 'application/json'
+      }
     });
 
     if (!response.ok) {
-      throw new Error(`Social1 API error: ${response.status}`);
+      throw new Error(`Internal API error: ${response.status} - ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('API Response:', { dataLength: data.results?.length });
     
-    if (!data.success || !data.data || !Array.isArray(data.data)) {
-      throw new Error('Invalid data format from Social1 API');
+    if (!data.results || !Array.isArray(data.results)) {
+      console.error('Invalid data format:', data);
+      throw new Error('Invalid data format from API');
     }
 
-    const products = data.data;
+    const products = data.results;
 
     // Create CSV headers
     const csvHeaders = [
@@ -62,19 +63,19 @@ export async function GET(request) {
         : 60;
 
       return [
-        index + 1, // Rank
-        `"${(product.product_name || '').replace(/"/g, '""')}"`, // Product Name (escaped)
+        product.ranking || (index + 1), // Use ranking from API or fallback to index
+        `"${(product.name || '').replace(/"/g, '""')}"`, // Product name
         product.product_id || '',
-        product.price || '',
-        `"${(product.price_display || '').replace(/"/g, '""')}"`, // Price Display (escaped)
-        `"${(product.shop?.shop_name || '').replace(/"/g, '""')}"`, // Shop Name (escaped)
+        product.price_value || '',
+        `"${(product.price_display || '').replace(/"/g, '""')}"`, // Price display
+        `"${(product.shop?.shop_name || '').replace(/"/g, '""')}"`, // Shop name
         product.shop?.shop_id || '',
         product.gmv || '',
         product.units_sold || '',
-        product.product_image || '',
-        `"${(product.category || '').replace(/"/g, '""')}"`, // Category (escaped)
-        product.region || '',
-        product.timestamp || '',
+        product.product_img_url || '',
+        `"${(product.top_category || '').replace(/"/g, '""')}"`, // Category
+        'UK', // Region
+        product.last_updated || '',
         viralScore,
         trendingScore
       ].join(',');

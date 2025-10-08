@@ -10,7 +10,7 @@ export async function GET(request) {
     }
 
     // TikTok Shop product URL
-    const shopUrl = `https://shop.tiktok.com/view/product/${productId}`;
+    const shopUrl = `https://www.tiktok.com/shop/gb/pdp/${productId}`;
     
     try {
       // Fetch the product page

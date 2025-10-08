@@ -222,7 +222,7 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
               </p>
               {product_data.product_id && (
                 <a 
-                  href={`https://shop.tiktok.com/view/product/${product_data.product_id}`}
+                  href={`https://www.tiktok.com/shop/gb/pdp/${product_data.product_id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="product__shop-link"

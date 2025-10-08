@@ -18,7 +18,7 @@ export async function GET(request) {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
           'Accept': 'application/json, text/plain, */*',
           'Accept-Language': 'en-US,en;q=0.9',
-          'Referer': `https://shop.tiktok.com/view/product/${productId}`,
+          'Referer': `https://www.tiktok.com/shop/gb/pdp/${productId}`,
           'Origin': 'https://shop.tiktok.com',
         },
       });
@@ -52,7 +52,7 @@ export async function GET(request) {
     }
 
     // Fallback: Try to get basic info from the page title and meta tags
-    const shopUrl = `https://shop.tiktok.com/view/product/${productId}`;
+    const shopUrl = `https://www.tiktok.com/shop/gb/pdp/${productId}`;
     
     try {
       const response = await fetch(shopUrl, {

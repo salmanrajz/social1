@@ -59,6 +59,9 @@ export default function ModernHeader() {
                 <span className="nav-icon">📊</span>
               </a>
             )}
+            <a href="/export" className={`nav-link ${path === '/export' ? 'active' : ''}`} title="Export Data">
+              <span className="nav-icon">📥</span>
+            </a>
           </nav>
 
           {/* User Actions */}
