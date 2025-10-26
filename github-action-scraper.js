@@ -5,7 +5,10 @@ const { Pool } = require('pg');
 // Database configuration for Supabase PostgreSQL
 const DB_CONFIG = {
   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:ItNbms57VeQIFeJH@db.edgitshcqelilcjkndho.supabase.co:5432/postgres?sslmode=disable',
-  ssl: false
+  ssl: false,
+  connectionTimeoutMillis: 30000,
+  idleTimeoutMillis: 30000,
+  max: 1
 };
 
 // Create PostgreSQL connection pool
@@ -266,6 +269,30 @@ async function main() {
     console.log('🚀 Starting Daily Trending Products Scraper - GitHub Action...');
     console.log(`⏰ Execution time: ${new Date().toISOString()}`);
     
+    // Debug environment variables
+    console.log('🔍 Environment check:');
+    console.log(`DATABASE_URL exists: ${!!process.env.DATABASE_URL}`);
+    console.log(`DATABASE_URL length: ${process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0}`);
+    
+    // Test database connection first
+    console.log('🔌 Testing database connection...');
+    const testPool = createConnection();
+    try {
+      const testResult = await testPool.query('SELECT NOW() as current_time');
+      console.log('✅ Database connection successful!');
+      console.log(`⏰ Database time: ${testResult.rows[0].current_time}`);
+      await testPool.end();
+    } catch (dbError) {
+      console.error('❌ Database connection failed:', dbError.message);
+      console.error('🔍 Connection details:', {
+        hasUrl: !!process.env.DATABASE_URL,
+        urlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+        errorCode: dbError.code,
+        errorMessage: dbError.message
+      });
+      throw dbError;
+    }
+    
     // Create table
     await createTable();
     
@@ -295,6 +322,14 @@ async function main() {
     
   } catch (error) {
     console.error('💥 Fatal error:', error);
+    console.error('🔍 Error details:', {
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      syscall: error.syscall,
+      address: error.address,
+      port: error.port
+    });
     process.exit(1);
   }
 }
