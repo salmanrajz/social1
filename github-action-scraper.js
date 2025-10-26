@@ -11,9 +11,28 @@ const DB_CONFIG = {
   max: 1
 };
 
-// Create PostgreSQL connection pool
+// Alternative connection config for IPv4
+const DB_CONFIG_IPV4 = {
+  host: 'db.edgitshcqelilcjkndho.supabase.co',
+  port: 5432,
+  user: 'postgres',
+  password: 'ItNbms57VeQIFeJH',
+  database: 'postgres',
+  ssl: false,
+  connectionTimeoutMillis: 30000,
+  idleTimeoutMillis: 30000,
+  max: 1
+};
+
+// Create PostgreSQL connection pool with fallback
 function createConnection() {
-  return new Pool(DB_CONFIG);
+  // Try connection string first, fallback to individual parameters
+  try {
+    return new Pool(DB_CONFIG);
+  } catch (error) {
+    console.log('🔄 Falling back to IPv4 connection...');
+    return new Pool(DB_CONFIG_IPV4);
+  }
 }
 
 // Fetch single page from direct API
@@ -276,22 +295,41 @@ async function main() {
     
     // Test database connection first
     console.log('🔌 Testing database connection...');
-    const testPool = createConnection();
+    let testPool = null;
+    let connectionMethod = 'connection string';
+    
     try {
+      // Try connection string first
+      testPool = new Pool(DB_CONFIG);
       const testResult = await testPool.query('SELECT NOW() as current_time');
       console.log('✅ Database connection successful!');
       console.log(`⏰ Database time: ${testResult.rows[0].current_time}`);
       await testPool.end();
     } catch (dbError) {
-      console.error('❌ Database connection failed:', dbError.message);
-      console.error('🔍 Connection details:', {
-        hasUrl: !!process.env.DATABASE_URL,
-        urlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
-        errorCode: dbError.code,
-        errorMessage: dbError.message
-      });
-      throw dbError;
+      console.log('🔄 Connection string failed, trying IPv4 method...');
+      try {
+        // Try IPv4 connection
+        testPool = new Pool(DB_CONFIG_IPV4);
+        const testResult = await testPool.query('SELECT NOW() as current_time');
+        console.log('✅ Database connection successful with IPv4!');
+        console.log(`⏰ Database time: ${testResult.rows[0].current_time}`);
+        connectionMethod = 'IPv4';
+        await testPool.end();
+      } catch (ipv4Error) {
+        console.error('❌ Both connection methods failed:');
+        console.error('Connection string error:', dbError.message);
+        console.error('IPv4 error:', ipv4Error.message);
+        console.error('🔍 Connection details:', {
+          hasUrl: !!process.env.DATABASE_URL,
+          urlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+          errorCode: ipv4Error.code,
+          errorMessage: ipv4Error.message
+        });
+        throw ipv4Error;
+      }
     }
+    
+    console.log(`🔗 Using connection method: ${connectionMethod}`);
     
     // Create table
     await createTable();
