@@ -1,0 +1,29 @@
+{
+  "name": "daily-trending-scraper",
+  "version": "1.0.0",
+  "description": "Daily TikTok trending products scraper with MySQL storage",
+  "main": "daily-trending-scraper.js",
+  "scripts": {
+    "start": "node daily-trending-scraper.js",
+    "test": "node daily-trending-scraper.js",
+    "install-deps": "npm install mysql2 node-fetch@2"
+  },
+  "dependencies": {
+    "mysql2": "^3.6.5",
+    "node-fetch": "^2.7.0"
+  },
+  "keywords": [
+    "tiktok",
+    "trending",
+    "products",
+    "scraper",
+    "mysql",
+    "daily"
+  ],
+  "author": "Social1 Team",
+  "license": "MIT"
+}
+
+
+
+

@@ -3,6 +3,7 @@
 import ShareButton from './SimpleShareButton';
 import { FavoriteButton } from './Favorites';
 import { useAnalytics } from '../hooks/useAnalytics';
+import { AddToCollectionButton } from './Collections';
 
 export default function VideoCard({ video, rank, numberFormat, currencyFormat }) {
   const {
@@ -240,6 +241,11 @@ export default function VideoCard({ video, rank, numberFormat, currencyFormat })
             item={video} 
             type="video" 
             size="small" 
+          />
+          <AddToCollectionButton
+            item={video}
+            itemType="video"
+            size="small"
           />
           <ShareButton
             url={`/?productID=${product_data?.product_id || 'video'}`}

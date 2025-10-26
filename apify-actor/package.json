@@ -1,0 +1,41 @@
+{
+  "name": "trending-products-scraper",
+  "version": "1.0.0",
+  "description": "Apify actor for scraping trending products from viral e-commerce platforms",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "apify",
+    "scraper",
+    "e-commerce",
+    "trending",
+    "products",
+    "viral",
+    "tiktok",
+    "social-commerce"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "apify": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/trending-products-scraper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/trending-products-scraper/issues"
+  },
+  "homepage": "https://github.com/yourusername/trending-products-scraper#readme"
+}
+
+
+
+
+

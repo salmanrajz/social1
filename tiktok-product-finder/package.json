@@ -1,0 +1,58 @@
+{
+  "name": "tiktok-product-finder",
+  "version": "1.0.0",
+  "description": "Advanced TikTok product search and analysis actor with detailed market insights",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node main.js"
+  },
+  "keywords": [
+    "apify",
+    "scraper",
+    "tiktok",
+    "product-search",
+    "e-commerce",
+    "market-analysis",
+    "trending-products",
+    "social-commerce",
+    "product-research",
+    "market-insights",
+    "viral-products"
+  ],
+  "author": "Social1 Team",
+  "license": "MIT",
+  "dependencies": {
+    "apify": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/social1/tiktok-product-finder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/social1/tiktok-product-finder/issues"
+  },
+  "homepage": "https://github.com/social1/tiktok-product-finder#readme",
+  "apify": {
+    "actorSpecification": 1,
+    "templateId": "project_empty",
+    "name": "TikTok Product Finder",
+    "title": "TikTok Product Finder - Advanced Search & Analysis",
+    "description": "Search and analyze TikTok Shop products with detailed market insights, trending scores, and business metrics",
+    "version": "1.0.0",
+    "meta": {
+      "templateId": "project_empty"
+    },
+    "input": "./INPUT_SCHEMA.json",
+    "dockerfile": "./Dockerfile"
+  }
+}
+
+
+
+
+

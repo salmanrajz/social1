@@ -10,6 +10,7 @@ import { useCompactView } from './components/CompactView';
 import { CompactVideoCard } from './components/CompactView';
 import { useAutoRefresh, AutoRefreshToggle } from './components/AutoRefresh';
 import { useAnalytics } from './hooks/useAnalytics';
+import PerformanceComparison from './components/PerformanceComparison';
 
 const numberFormat = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -140,6 +141,13 @@ export default function Home() {
       <ModernHeader />
       
       <main className="main-content">
+        {!productID && (
+          <PerformanceComparison 
+            currentData={{ data: videos }}
+            comparisonType="yesterday"
+          />
+        )}
+
         <div className="filters">
         <div className="filter-group">
           <label htmlFor="daysSelect">Most viral content from:</label>

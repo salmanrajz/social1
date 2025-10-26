@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToggle';
 import { CompactViewToggle } from './CompactView';
 import { AutoRefreshToggle } from './AutoRefresh';
 import { FavoritesList } from './Favorites';
+import { NotificationsBell } from './TrendAlerts';
 
 export default function ModernHeader() {
   const [showFavorites, setShowFavorites] = useState(false);
@@ -59,6 +60,12 @@ export default function ModernHeader() {
                 <span className="nav-icon">📊</span>
               </a>
             )}
+            <a href="/collections" className={`nav-link ${path === '/collections' ? 'active' : ''}`} title="Collections">
+              <span className="nav-icon">📚</span>
+            </a>
+            <a href="/alerts" className={`nav-link ${path === '/alerts' ? 'active' : ''}`} title="Alerts">
+              <span className="nav-icon">🔔</span>
+            </a>
             <a href="/export" className={`nav-link ${path === '/export' ? 'active' : ''}`} title="Export Data">
               <span className="nav-icon">📥</span>
             </a>
@@ -67,6 +74,7 @@ export default function ModernHeader() {
           {/* User Actions */}
           <div className="header-actions">
             <div className="action-group">
+              <NotificationsBell />
               <CompactViewToggle />
               <AutoRefreshToggle />
               <button

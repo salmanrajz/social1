@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/cron-daily-scraper.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/cron-daily-scraper",
+      "dest": "/api/cron-daily-scraper.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron-daily-scraper",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}
+
+
+
+

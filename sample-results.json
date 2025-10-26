@@ -1,0 +1,134 @@
+{
+  "results": [
+    {
+      "rank": 1,
+      "product_id": "1729453975496460582",
+      "name": "Tarte Best-Sellers Trending Trio - Lip Plump Gloss, Mascara & Eye Pencil Set",
+      "price_display": "$39.00",
+      "units_sold": 1729415053505106876,
+      "gmv": 2500000.50,
+      "creator_count": 45,
+      "video_count": 120,
+      "engagement_rate": 0.375,
+      "product_img_url": "https://example.com/product1.jpg",
+      "product_url": "https://www.tiktok.com/shop/gb/pdp/1729453975496460582",
+      "categories": ["Beauty", "Makeup", "Trending"],
+      "region": "uk",
+      "days_period": 1,
+      "scraped_at": "2025-01-17T21:20:00.000Z",
+      "data_limitations": {
+        "video_count_available": true,
+        "creator_count_available": true,
+        "gmv_available": true,
+        "note": "Full video analytics available"
+      }
+    },
+    {
+      "rank": 2,
+      "product_id": "1729391818542387979",
+      "name": "Mother's Day Gift, USB Powered Humidifier for Fall Gift, Simulation Flame Air Humidifier",
+      "price_display": "$12.33",
+      "units_sold": 117905,
+      "gmv": 1450000.25,
+      "creator_count": 32,
+      "video_count": 85,
+      "engagement_rate": 0.376,
+      "product_img_url": "https://example.com/product2.jpg",
+      "product_url": "https://www.tiktok.com/shop/gb/pdp/1729391818542387979",
+      "categories": ["Home", "Gift", "Electronics"],
+      "region": "uk",
+      "days_period": 1,
+      "scraped_at": "2025-01-17T21:20:00.000Z",
+      "data_limitations": {
+        "video_count_available": true,
+        "creator_count_available": true,
+        "gmv_available": true,
+        "note": "Full video analytics available"
+      }
+    },
+    {
+      "rank": 3,
+      "product_id": "1729393722350408555",
+      "name": "2025 New Trending Shoes, Cute Fluffy Novelty Cow Slippers, Matching Soft Plush House Slippers",
+      "price_display": "$11.97",
+      "units_sold": 105586,
+      "gmv": 1265000.00,
+      "creator_count": 28,
+      "video_count": 72,
+      "engagement_rate": 0.389,
+      "product_img_url": "https://example.com/product3.jpg",
+      "product_url": "https://www.tiktok.com/shop/gb/pdp/1729393722350408555",
+      "categories": ["Shoes", "Fashion", "Trending"],
+      "region": "uk",
+      "days_period": 1,
+      "scraped_at": "2025-01-17T21:20:00.000Z",
+      "data_limitations": {
+        "video_count_available": true,
+        "creator_count_available": true,
+        "gmv_available": true,
+        "note": "Full video analytics available"
+      }
+    },
+    {
+      "rank": 4,
+      "product_id": "1729386021273964650",
+      "name": "Eid al-Adha 2500mah Menstrual Heating Pad, Cycle Heating Pad For Cramps, Period Cramp Simulator",
+      "price_display": "$10.79",
+      "units_sold": 83686,
+      "gmv": 902500.75,
+      "creator_count": 22,
+      "video_count": 58,
+      "engagement_rate": 0.379,
+      "product_img_url": "https://example.com/product4.jpg",
+      "product_url": "https://www.tiktok.com/shop/gb/pdp/1729386021273964650",
+      "categories": ["Health", "Women", "Wellness"],
+      "region": "uk",
+      "days_period": 1,
+      "scraped_at": "2025-01-17T21:20:00.000Z",
+      "data_limitations": {
+        "video_count_available": true,
+        "creator_count_available": true,
+        "gmv_available": true,
+        "note": "Full video analytics available"
+      }
+    },
+    {
+      "rank": 5,
+      "product_id": "1729410432849515041",
+      "name": "Women's Solid Double Button Pocket Longsleeves Overcoat, Chic Fitted Casual Long Sleeve Lapel Neck Outerwear",
+      "price_display": "$3?",
+      "units_sold": 82402,
+      "gmv": 247206.00,
+      "creator_count": 18,
+      "video_count": 45,
+      "engagement_rate": 0.400,
+      "product_img_url": "https://example.com/product5.jpg",
+      "product_url": "https://www.tiktok.com/shop/gb/pdp/1729410432849515041",
+      "categories": ["Fashion", "Women", "Clothing"],
+      "region": "uk",
+      "days_period": 1,
+      "scraped_at": "2025-01-17T21:20:00.000Z",
+      "data_limitations": {
+        "video_count_available": true,
+        "creator_count_available": true,
+        "gmv_available": true,
+        "note": "Full video analytics available"
+      }
+    }
+  ],
+  "totalProducts": 5,
+  "region": "uk",
+  "daysPeriod": 1,
+  "scrapedAt": "2025-01-17T21:20:00.000Z",
+  "topProduct": {
+    "rank": 1,
+    "product_id": "1729453975496460582",
+    "name": "Tarte Best-Sellers Trending Trio - Lip Plump Gloss, Mascara & Eye Pencil Set"
+  },
+  "categories": ["Beauty", "Makeup", "Trending", "Home", "Gift", "Electronics", "Shoes", "Fashion", "Health", "Women", "Wellness", "Clothing"],
+  "totalShops": 0
+}
+
+
+
+

@@ -66,7 +66,7 @@ export default function SessionTimer() {
       <style jsx>{`
         .session-timer {
           position: fixed;
-          top: 1rem;
+          top: 5rem;
           right: 1rem;
           display: flex;
           align-items: center;
@@ -76,7 +76,7 @@ export default function SessionTimer() {
           color: white;
           border-radius: 0.5rem;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-          z-index: 1000;
+          z-index: 9999 !important;
           font-size: 0.875rem;
           animation: slideIn 0.3s ease-out;
         }

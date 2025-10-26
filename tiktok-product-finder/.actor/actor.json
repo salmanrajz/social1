@@ -1,0 +1,7 @@
+{
+	"actorSpecification": 1,
+	"name": "tiktok-product-finder",
+	"version": "0.0",
+	"buildTag": "latest",
+	"environmentVariables": {}
+}

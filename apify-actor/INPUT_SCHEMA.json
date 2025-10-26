@@ -1,0 +1,66 @@
+{
+  "title": "Trending Products Scraper Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "limit": {
+      "title": "Maximum number of products to scrape",
+      "type": "integer",
+      "description": "Maximum number of products to scrape (default: 12, max: 1000)",
+      "default": 12,
+      "minimum": 1,
+      "maximum": 1000
+    },
+    "offset": {
+      "title": "Starting offset for pagination",
+      "type": "integer",
+      "description": "Number of products to skip from the beginning (default: 0)",
+      "default": 0,
+      "minimum": 0
+    },
+    "days": {
+      "title": "Time period in days",
+      "type": "integer",
+      "description": "Number of days to look back for trending products (default: 1)",
+      "default": 1,
+      "enum": [1, 3, 7, 30],
+      "enumTitles": ["Today", "Last 3 days", "Last 7 days", "Last 30 days"]
+    },
+    "region": {
+      "title": "Geographic region",
+      "type": "string",
+      "description": "Region to scrape products from (default: uk)",
+      "default": "uk",
+      "enum": ["uk", "us"],
+      "enumTitles": ["United Kingdom", "United States"]
+    },
+    "shopId": {
+      "title": "Specific shop ID (optional)",
+      "type": "string",
+      "description": "Filter products by specific shop ID (optional)",
+      "default": null
+    },
+    "maxRetries": {
+      "title": "Maximum retry attempts",
+      "type": "integer",
+      "description": "Maximum number of retry attempts for failed requests (default: 3)",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 10
+    },
+    "delayBetweenRequests": {
+      "title": "Delay between requests (ms)",
+      "type": "integer",
+      "description": "Delay in milliseconds between API requests (default: 1000)",
+      "default": 1000,
+      "minimum": 100,
+      "maximum": 10000
+    }
+  },
+  "required": []
+}
+
+
+
+
+

@@ -1,0 +1,183 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff0050;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#25f4ee;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fe2c55;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:0.95" />
+    </linearGradient>
+    
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+    
+    <!-- Glow effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="100" r="60" fill="white" opacity="0.1"/>
+  <circle cx="700" cy="150" r="80" fill="white" opacity="0.08"/>
+  <circle cx="650" cy="500" r="40" fill="white" opacity="0.12"/>
+  <circle cx="150" cy="450" r="70" fill="white" opacity="0.06"/>
+  
+  <!-- Main content card -->
+  <rect x="50" y="50" width="700" height="500" rx="20" fill="url(#cardGradient)" filter="url(#shadow)"/>
+  
+  <!-- Header section -->
+  <rect x="70" y="70" width="660" height="80" rx="10" fill="url(#accentGradient)"/>
+  
+  <!-- TikTok logo representation -->
+  <g transform="translate(100, 90)">
+    <!-- TikTok-style music note -->
+    <path d="M20 10 Q30 5 40 10 Q50 15 40 20 Q30 25 20 20 Q10 15 20 10" fill="white" opacity="0.9"/>
+    <rect x="35" y="5" width="4" height="20" fill="white" opacity="0.9"/>
+    <circle cx="42" cy="8" r="3" fill="white" opacity="0.9"/>
+  </g>
+  
+  <!-- Actor title -->
+  <text x="200" y="115" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white">
+    TikTok Product Finder
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="200" y="140" font-family="Arial, sans-serif" font-size="16" fill="white" opacity="0.9">
+    Advanced Search &amp; Market Analysis
+  </text>
+  
+  <!-- Main content area -->
+  <g transform="translate(100, 180)">
+    <!-- Search icon -->
+    <g transform="translate(0, 0)">
+      <circle cx="25" cy="25" r="20" fill="url(#accentGradient)" filter="url(#glow)"/>
+      <path d="M35 35 L45 45" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    
+    <!-- Search functionality text -->
+    <text x="70" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#333">
+      Product Search &amp; Discovery
+    </text>
+    
+    <!-- Analytics icon -->
+    <g transform="translate(0, 80)">
+      <rect x="5" y="5" width="40" height="40" rx="8" fill="url(#accentGradient)" filter="url(#glow)"/>
+      <rect x="12" y="15" width="4" height="20" fill="white"/>
+      <rect x="20" y="10" width="4" height="25" fill="white"/>
+      <rect x="28" y="20" width="4" height="15" fill="white"/>
+      <rect x="36" y="12" width="4" height="23" fill="white"/>
+    </g>
+    
+    <!-- Analytics text -->
+    <text x="70" y="115" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#333">
+      Market Analytics &amp; Insights
+    </text>
+    
+    <!-- Trending icon -->
+    <g transform="translate(0, 160)">
+      <circle cx="25" cy="25" r="20" fill="#ff6b35" filter="url(#glow)"/>
+      <text x="20" y="32" font-family="Arial, sans-serif" font-size="20" fill="white">🔥</text>
+    </g>
+    
+    <!-- Trending text -->
+    <text x="70" y="195" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#333">
+      Trending Scores &amp; Metrics
+    </text>
+    
+    <!-- Business icon -->
+    <g transform="translate(0, 240)">
+      <rect x="5" y="5" width="40" height="40" rx="8" fill="#10b981" filter="url(#glow)"/>
+      <text x="20" y="32" font-family="Arial, sans-serif" font-size="20" fill="white">💼</text>
+    </g>
+    
+    <!-- Business text -->
+    <text x="70" y="275" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#333">
+      Business Intelligence &amp; ROI
+    </text>
+  </g>
+  
+  <!-- Right side features -->
+  <g transform="translate(450, 180)">
+    <!-- Feature list -->
+    <g transform="translate(0, 0)">
+      <circle cx="8" cy="8" r="4" fill="#6366f1"/>
+      <text x="25" y="13" font-family="Arial, sans-serif" font-size="14" fill="#333">
+        Smart Product Filtering
+      </text>
+    </g>
+    
+    <g transform="translate(0, 35)">
+      <circle cx="8" cy="8" r="4" fill="#8b5cf6"/>
+      <text x="25" y="13" font-family="Arial, sans-serif" font-size="14" fill="#333">
+        Regional Market Analysis
+      </text>
+    </g>
+    
+    <g transform="translate(0, 70)">
+      <circle cx="8" cy="8" r="4" fill="#06b6d4"/>
+      <text x="25" y="13" font-family="Arial, sans-serif" font-size="14" fill="#333">
+        Competitive Intelligence
+      </text>
+    </g>
+    
+    <g transform="translate(0, 105)">
+      <circle cx="8" cy="8" r="4" fill="#f59e0b"/>
+      <text x="25" y="13" font-family="Arial, sans-serif" font-size="14" fill="#333">
+        Profit Potential Analysis
+      </text>
+    </g>
+    
+    <g transform="translate(0, 140)">
+      <circle cx="8" cy="8" r="4" fill="#ef4444"/>
+      <text x="25" y="13" font-family="Arial, sans-serif" font-size="14" fill="#333">
+        Target Audience Insights
+      </text>
+    </g>
+    
+    <g transform="translate(0, 175)">
+      <circle cx="8" cy="8" r="4" fill="#10b981"/>
+      <text x="25" y="13" font-family="Arial, sans-serif" font-size="14" fill="#333">
+        Growth Opportunity Assessment
+      </text>
+    </g>
+  </g>
+  
+  <!-- Bottom section -->
+  <g transform="translate(100, 500)">
+    <!-- Actor info -->
+    <text x="0" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#6366f1">
+      TikTok Product Finder
+    </text>
+    
+    <!-- Version info -->
+    <text x="500" y="25" font-family="Arial, sans-serif" font-size="14" fill="#666">
+      v1.0.0 • Advanced Analytics
+    </text>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g opacity="0.1">
+    <path d="M600 300 Q650 280 700 300 Q650 320 600 300" fill="white"/>
+    <path d="M150 350 Q180 330 210 350 Q180 370 150 350" fill="white"/>
+    <path d="M550 450 Q580 430 610 450 Q580 470 550 450" fill="white"/>
+  </g>
+</svg>

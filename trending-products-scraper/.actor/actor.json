@@ -1,0 +1,13 @@
+{
+  "actorSpecification": 1,
+  "name": "trending-products-scraper",
+  "title": "Trending Products Scraper",
+  "description": "Scrapes trending products from viral e-commerce platforms with enhanced analytics",
+  "version": "1.0",
+  "meta": {
+    "templateId": "apify/actor-js-basic"
+  },
+  "input": "./INPUT_SCHEMA.json",
+  "output": "./OUTPUT_SCHEMA.json",
+  "dockerfile": "./Dockerfile"
+}

@@ -1,0 +1,80 @@
+{
+  "title": "TikTok Product Finder Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "query": {
+      "title": "Search Query",
+      "type": "string",
+      "description": "Search term or keywords to find products (e.g., 'skincare', 'wireless headphones', 'fitness gear')",
+      "editor": "textfield"
+    },
+    "region": {
+      "title": "Geographic Region",
+      "type": "string",
+      "description": "Region to search products from",
+      "default": "us",
+      "enum": ["us", "uk"],
+      "enumTitles": ["United States", "United Kingdom"],
+      "editor": "select"
+    },
+    "limit": {
+      "title": "Maximum Results",
+      "type": "integer",
+      "description": "Maximum number of products to return (default: 50, max: 200)",
+      "default": 50,
+      "minimum": 1,
+      "maximum": 200,
+      "editor": "number"
+    },
+    "includeDetails": {
+      "title": "Include Detailed Analytics",
+      "type": "boolean",
+      "description": "Include comprehensive market analysis and business metrics",
+      "default": true,
+      "editor": "checkbox"
+    },
+    "minTrendingScore": {
+      "title": "Minimum Trending Score",
+      "type": "integer",
+      "description": "Filter products with trending score above this value (0-100)",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100,
+      "editor": "number"
+    },
+    "minUnitsSold": {
+      "title": "Minimum Units Sold",
+      "type": "integer",
+      "description": "Filter products with at least this many units sold",
+      "default": 0,
+      "minimum": 0,
+      "editor": "number"
+    },
+    "category": {
+      "title": "Category Filter",
+      "type": "string",
+      "description": "Filter products by specific category (optional)",
+      "editor": "textfield"
+    },
+    "maxRetries": {
+      "title": "Maximum Retry Attempts",
+      "type": "integer",
+      "description": "Maximum number of retry attempts for failed requests",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 10,
+      "editor": "number"
+    },
+    "delayBetweenRequests": {
+      "title": "Delay Between Requests (ms)",
+      "type": "integer",
+      "description": "Delay in milliseconds between API requests",
+      "default": 1000,
+      "minimum": 100,
+      "maximum": 10000,
+      "editor": "number"
+    }
+  },
+  "required": ["query"]
+}

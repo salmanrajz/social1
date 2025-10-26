@@ -319,6 +319,7 @@ export default function ProductsPage() {
                   src={product.product_img_url || "https://placehold.co/300x300?text=Product"}
                   alt={product.name || "Product image"}
                   className="product-image"
+                  style={{ pointerEvents: 'none' }}
                 />
                 <div className="rank-badge">
                   <span className="rank-number">#{state.page * state.limit + products.indexOf(product) + 1}</span>
