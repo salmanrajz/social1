@@ -97,10 +97,11 @@ async function fetchAllProducts() {
   const limit = 12;
   let offset = 0;
   let page = 1;
+  const targetProducts = 240; // Increased from 100 to 240
   
   console.log('📡 Fetching products using API\'s original ranking...');
   
-  while (allProducts.length < 100 && page <= 10) {
+  while (allProducts.length < targetProducts && page <= 25) { // Increased max pages from 10 to 25
     console.log(`📄 Page ${page} (offset: ${offset}, limit: ${limit})...`);
     
     const products = await fetchPage(offset, limit);
@@ -121,7 +122,7 @@ async function fetchAllProducts() {
   }
   
   console.log(`🎯 Fetched ${allProducts.length} products total`);
-  return allProducts.slice(0, 100);
+  return allProducts.slice(0, targetProducts);
 }
 
 // Create table
@@ -345,7 +346,7 @@ async function main() {
         if (products.length > 0) {
           const totalGMV = products.reduce((sum, p) => sum + (parseFloat(p.gmv) || 0), 0);
           console.log('🎯 Data Fetch Complete (No Database Storage):');
-          console.log(`📊 Products: ${products.length}`);
+          console.log(`📊 Products: ${products.length} (Target: 240)`);
           console.log(`💰 Total GMV: £${totalGMV.toLocaleString()}`);
           console.log('⚠️ Data not saved to database due to connection issues');
           process.exit(0); // Exit successfully but with warning
@@ -379,7 +380,7 @@ async function main() {
     
     console.log('🎯 Daily Scraping Complete!');
     console.log(`📅 Date: ${today}`);
-    console.log(`📊 Products: ${products.length}`);
+    console.log(`📊 Products: ${products.length} (Target: 240)`);
     console.log(`💰 Total GMV: £${totalGMV.toLocaleString()}`);
     
     // GitHub Action success
