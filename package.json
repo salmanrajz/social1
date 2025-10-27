@@ -9,6 +9,7 @@
     "start": "node api/cron-daily-scraper.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.76.1",
     "pg": "^8.16.3"
   },
   "engines": {
