@@ -1,34 +1,30 @@
-// GitHub Action script for daily TikTok trending products scraper using Supabase client
+// GitHub Action script for daily TikTok trending products scraper (Public Version)
 const https = require('https');
 const { createClient } = require('@supabase/supabase-js');
 
 // Supabase configuration
-const supabaseUrl = 'https://edgitshcqelilcjkndho.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ2l0c2hjcWVsaWxjamtuZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MTExMzksImV4cCI6MjA3Njk4NzEzOX0.rgethMENBCp6F57GAyQknSZjmKdxpQaoJcr6BYOUIq8';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://your-project.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseKey) {
+  console.error('❌ SUPABASE_KEY environment variable is required');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Fetch single page from direct API
+// Fetch single page from TikTok API via proxy service
 async function fetchPage(offset, limit) {
   return new Promise((resolve) => {
     const options = {
-      hostname: 'tiktok.wakanz.com',
+      hostname: 'your-proxy-api.com', // Replace with your proxy service
       port: 443,
-      path: `/api/videos?region=uk&days=1&limit=${limit}&offset=${offset}`,
+      path: `/api/tiktok-products?region=uk&days=1&limit=${limit}&offset=${offset}`,
       method: 'GET',
       headers: {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'cookie': '__Host-next-auth.csrf-token=64f312499e994880d224722ffc1b80687dad024564f0213cd5257f465bc0e83d%7C9a3cc9efff14182a7ea157bfa03a2e8d55f45fbc75817b56b7a8b85c0d4eff9b; __Secure-next-auth.callback-url=https%3A%2F%2Ftiktok.wakanz.com%2Fauth%2Fsignin%3FcallbackUrl%3Dhttps%253A%252F%252Ftiktok.wakanz.com%252F; site_password=777888; site_expires=1760894073430; site_duration=30 minutes; __Secure-next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..Xn9xPJ2kggvCrTTz.03Dbq0fYI_Nuc6PlrSDiezbhLOQYE8WK9vHC9OaQJC5b_zabEyL_ScFeE9ij5SwxVejn6fb_MWaUuCLox9I-2leICzwY1xP7snKHIvCAwqLHamfZC4siWYwYQpSVWM4vQURgTS41QD89I4WNOrdwCumqTAZDOz229Uyu_g8WiXKv_-QJY88iI15mzWjwBqeYVQFBmDLKUOzzxxWFChb8TOlKPG-sxs86Qdbsc4lRfQQxAxjc39E2d9dZH4lFnM-WxdUxvT_JqWP4JvPGEGzartQgEnWIDV_AEnF95mTHE5Q.8y_n-f6a4r5bbP-Xz6TqFw',
-        'priority': 'u=1, i',
-        'referer': 'https://tiktok.wakanz.com/',
-        'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"macOS"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+        'Authorization': `Bearer ${process.env.API_KEY}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
       }
     };
 
@@ -213,8 +209,9 @@ async function main() {
     
     // Debug environment variables
     console.log('🔍 Environment check:');
+    console.log(`SUPABASE_URL exists: ${!!process.env.SUPABASE_URL}`);
     console.log(`SUPABASE_KEY exists: ${!!process.env.SUPABASE_KEY}`);
-    console.log(`SUPABASE_KEY length: ${process.env.SUPABASE_KEY ? process.env.SUPABASE_KEY.length : 0}`);
+    console.log(`API_KEY exists: ${!!process.env.API_KEY}`);
     
     // Test Supabase connection
     await testConnection();

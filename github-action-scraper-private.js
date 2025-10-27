@@ -1,10 +1,10 @@
-// Supabase client-based data pusher with correct API key
+// GitHub Action script for daily TikTok trending products scraper using Supabase client
 const https = require('https');
 const { createClient } = require('@supabase/supabase-js');
 
-// Supabase configuration with correct API key
+// Supabase configuration
 const supabaseUrl = 'https://edgitshcqelilcjkndho.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ2l0c2hjcWVsaWxjamtuZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MTExMzksImV4cCI6MjA3Njk4NzEzOX0.rgethMENBCp6F57GAyQknSZjmKdxpQaoJcr6BYOUIq8';
+const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ2l0c2hjcWVsaWxjamtuZGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MTExMzksImV4cCI6MjA3Njk4NzEzOX0.rgethMENBCp6F57GAyQknSZjmKdxpQaoJcr6BYOUIq8';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -70,7 +70,7 @@ async function fetchAllProducts() {
   let page = 1;
   const targetProducts = 240;
   
-  console.log('📡 Fetching 240 products...');
+  console.log('📡 Fetching products using API\'s original ranking...');
   
   while (allProducts.length < targetProducts && page <= 25) {
     console.log(`📄 Page ${page} (offset: ${offset}, limit: ${limit})...`);
@@ -101,16 +101,14 @@ async function testConnection() {
   try {
     console.log('🔌 Testing Supabase connection...');
     
-    // Test with a simple query
     const { data, error } = await supabase
       .from('daily_trending_products')
       .select('count')
       .limit(1);
     
     if (error) {
-      console.log('⚠️ Table might not exist yet, but connection is working');
-      console.log('📋 Error:', error.message);
-      return false;
+      console.error('❌ Supabase connection failed:', error.message);
+      throw error;
     } else {
       console.log('✅ Supabase connection successful!');
       console.log('📊 Current records:', data);
@@ -118,7 +116,7 @@ async function testConnection() {
     }
   } catch (error) {
     console.error('❌ Connection test failed:', error.message);
-    return false;
+    throw error;
   }
 }
 
@@ -210,15 +208,16 @@ async function insertDailyData(products, collectionDate) {
 // Main function
 async function main() {
   try {
-    console.log('🚀 Supabase Data Pusher - Fetching 240 Products...');
+    console.log('🚀 Starting Daily Trending Products Scraper - GitHub Action...');
     console.log(`⏰ Execution time: ${new Date().toISOString()}`);
     
-    // Test Supabase connection
-    const connectionOk = await testConnection();
+    // Debug environment variables
+    console.log('🔍 Environment check:');
+    console.log(`SUPABASE_KEY exists: ${!!process.env.SUPABASE_KEY}`);
+    console.log(`SUPABASE_KEY length: ${process.env.SUPABASE_KEY ? process.env.SUPABASE_KEY.length : 0}`);
     
-    if (!connectionOk) {
-      console.log('⚠️ Proceeding anyway - table might need to be created');
-    }
+    // Test Supabase connection
+    await testConnection();
     
     // Fetch all products
     const products = await fetchAllProducts();
@@ -236,14 +235,24 @@ async function main() {
     
     const totalGMV = products.reduce((sum, p) => sum + (parseFloat(p.gmv) || 0), 0);
     
-    console.log('🎯 Supabase Push Complete!');
+    console.log('🎯 Daily Scraping Complete!');
     console.log(`📅 Date: ${today}`);
-    console.log(`📊 Products: ${products.length}`);
+    console.log(`📊 Products: ${products.length} (Target: 240)`);
     console.log(`💰 Total GMV: £${totalGMV.toLocaleString()}`);
-    console.log('✅ All 240 products saved to Supabase!');
+    
+    // GitHub Action success
+    console.log('✅ GitHub Action completed successfully');
     
   } catch (error) {
     console.error('💥 Fatal error:', error);
+    console.error('🔍 Error details:', {
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      syscall: error.syscall,
+      address: error.address,
+      port: error.port
+    });
     process.exit(1);
   }
 }
