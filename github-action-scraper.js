@@ -2,38 +2,20 @@
 const https = require('https');
 const { Pool } = require('pg');
 
-// Database configuration for Supabase PostgreSQL
+// Database configuration for Supabase PostgreSQL using Connection Pooler
 const DB_CONFIG = {
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:ItNbms57VeQIFeJH@db.edgitshcqelilcjkndho.supabase.co:5432/postgres?sslmode=disable',
-  ssl: false,
+  connectionString: process.env.DATABASE_URL, // Expecting Pooler connection string from GitHub Secret
+  ssl: false, // Supabase Pooler typically handles SSL, but we can keep this for direct connection if needed
   connectionTimeoutMillis: 60000,
   idleTimeoutMillis: 60000,
-  max: 1,
-  // Force IPv4 and add additional options
-  keepAlive: true,
-  keepAliveInitialDelayMillis: 10000
+  max: 1 // Keep max connections low for a cron job
 };
 
-// Alternative connection config with different SSL settings
-const DB_CONFIG_ALT = {
-  host: 'db.edgitshcqelilcjkndho.supabase.co',
-  port: 5432,
-  user: 'postgres',
-  password: 'ItNbms57VeQIFeJH',
-  database: 'postgres',
-  ssl: {
-    rejectUnauthorized: false,
-    checkServerIdentity: () => undefined
-  },
-  connectionTimeoutMillis: 60000,
-  idleTimeoutMillis: 60000,
-  max: 1,
-  keepAlive: true,
-  keepAliveInitialDelayMillis: 10000
-};
-
-// Create PostgreSQL connection pool with multiple fallbacks
+// Create PostgreSQL connection pool
 function createConnection() {
+  if (!DB_CONFIG.connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set.');
+  }
   return new Pool(DB_CONFIG);
 }
 
@@ -287,6 +269,7 @@ async function insertDailyData(products, collectionDate) {
 
 // Main function
 async function main() {
+  let pool = null; // Declare pool here to ensure it's accessible in finally block
   try {
     console.log('🚀 Starting Daily Trending Products Scraper - GitHub Action...');
     console.log(`⏰ Execution time: ${new Date().toISOString()}`);
@@ -298,66 +281,28 @@ async function main() {
     
     // Test database connection first
     console.log('🔌 Testing database connection...');
-    let testPool = null;
-    let connectionMethod = 'connection string';
-    
+    pool = createConnection(); // Initialize pool here
     try {
-      // Try connection string first
-      testPool = new Pool(DB_CONFIG);
-      const testResult = await testPool.query('SELECT NOW() as current_time');
+      const testResult = await pool.query('SELECT NOW() as current_time');
       console.log('✅ Database connection successful!');
       console.log(`⏰ Database time: ${testResult.rows[0].current_time}`);
-      await testPool.end();
     } catch (dbError) {
-      console.log('🔄 Connection string failed, trying alternative SSL method...');
-      try {
-        // Try alternative SSL connection
-        testPool = new Pool(DB_CONFIG_ALT);
-        const testResult = await testPool.query('SELECT NOW() as current_time');
-        console.log('✅ Database connection successful with alternative SSL!');
-        console.log(`⏰ Database time: ${testResult.rows[0].current_time}`);
-        connectionMethod = 'alternative SSL';
-        await testPool.end();
-      } catch (altError) {
-        console.error('❌ All connection methods failed:');
-        console.error('Connection string error:', dbError.message);
-        console.error('Alternative SSL error:', altError.message);
-        
-        // Try to get more network info
-        console.log('🌐 Network diagnostics:');
-        console.log('GitHub Actions runner environment detected');
-        console.log('This may be a network restriction issue');
-        
-        console.error('🔍 Connection details:', {
-          hasUrl: !!process.env.DATABASE_URL,
-          urlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
-          errorCode: altError.code,
-          errorMessage: altError.message,
-          runnerOS: process.platform,
-          nodeVersion: process.version
-        });
-        
-        // For now, let's skip database operations and just fetch data
-        console.log('⚠️ Skipping database operations due to connection issues');
-        console.log('📡 Will fetch data and report results without storage');
-        
-        // Fetch data without database
-        const products = await fetchAllProducts();
-        if (products.length > 0) {
-          const totalGMV = products.reduce((sum, p) => sum + (parseFloat(p.gmv) || 0), 0);
-          console.log('🎯 Data Fetch Complete (No Database Storage):');
-          console.log(`📊 Products: ${products.length} (Target: 240)`);
-          console.log(`💰 Total GMV: £${totalGMV.toLocaleString()}`);
-          console.log('⚠️ Data not saved to database due to connection issues');
-          process.exit(0); // Exit successfully but with warning
-        } else {
-          console.log('❌ No products fetched');
-          process.exit(1);
-        }
+      console.error('❌ Database connection failed:', dbError.message);
+      console.error('🔍 Connection details:', {
+        hasUrl: !!process.env.DATABASE_URL,
+        urlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+        errorCode: dbError.code,
+        errorMessage: dbError.message
+      });
+      throw dbError; // Re-throw to stop execution if connection fails
+    } finally {
+      if (pool) {
+        await pool.end(); // Ensure pool is closed after test
       }
     }
     
-    console.log(`🔗 Using connection method: ${connectionMethod}`);
+    // Re-create pool for main operations
+    pool = createConnection();
     
     // Create table
     await createTable();
@@ -397,6 +342,10 @@ async function main() {
       port: error.port
     });
     process.exit(1);
+  } finally {
+    if (pool) {
+      await pool.end(); // Ensure pool is closed at the end of main execution
+    }
   }
 }
 
