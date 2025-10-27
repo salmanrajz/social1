@@ -1,16 +1,24 @@
 {
-  "name": "tiktok-daily-scraper",
+  "name": "social1-tiktok-platform",
   "version": "1.0.0",
-  "description": "Daily TikTok trending products scraper with Vercel cron",
-  "main": "api/cron-daily-scraper.js",
+  "description": "Social1 TikTok trending products platform with Next.js",
+  "main": "app/page.js",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'No build step required'",
-    "start": "node api/cron-daily-scraper.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "@supabase/supabase-js": "^2.76.1",
     "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -20,8 +28,8 @@
     "trending",
     "products",
     "scraper",
+    "nextjs",
     "vercel",
-    "cron",
     "postgresql",
     "supabase"
   ],
