@@ -49,3 +49,4 @@ You should see:
 4. **Dependency Management**: Installs Supabase client automatically
 
 Your GitHub Actions workflow is now ready to run successfully! 🚀
+
