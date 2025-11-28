@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import { Video, ShoppingBag, Search, BarChart3, User, LogOut, LogIn, UserPlus, Star } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import { CompactViewToggle } from './CompactView';
 import { AutoRefreshToggle } from './AutoRefresh';
@@ -12,95 +13,139 @@ export default function Header() {
   const [showFavorites, setShowFavorites] = useState(false);
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const productID = searchParams.get('productID');
-  const path = typeof window !== 'undefined' ? window.location.pathname : '';
 
-  let title = "social1";
   let description = "Discover what's trending and going viral on TikTok";
 
-  if (path === '/search') {
-    title = "social1";
+  if (pathname === '/search') {
     description = "Search for trending TikTok products and see what's selling";
-  } else if (path === '/products') {
-    title = "social1";
+  } else if (pathname === '/products') {
     description = "Discover the hottest trending products on TikTok";
   } else if (productID) {
     description = "Videos featuring this product";
   }
 
   return (
-    <header className="header">
-      <div className="header-content">
-        <div className="header-left">
-          <h1>
-            <span>social</span>
-            <span>1</span>
-          </h1>
-          <p>{description}</p>
-        </div>
-        <div className="header-right">
-            <div className="header-controls">
-              <CompactViewToggle />
-              <AutoRefreshToggle />
-              <button
-                onClick={() => setShowFavorites(true)}
-                className="favorites-button"
-                title="View Favorites"
-              >
-                ⭐ Favorites
-              </button>
-              {session ? (
-                <div className="user-menu">
-                  <a
-                    href="/dashboard"
-                    className="user-button"
-                    title="Dashboard"
-                  >
-                    👤 {session.user.name}
-                  </a>
-                  <button
-                    onClick={() => signOut()}
-                    className="user-button user-button--signout"
-                    title="Sign Out"
-                  >
-                    🚪 Sign Out
-                  </button>
-                </div>
-              ) : (
-                <div className="auth-buttons">
-                  <button
-                    onClick={() => signIn()}
-                    className="auth-button auth-button--signin"
-                    title="Sign In"
-                  >
-                    🔐 Sign In
-                  </button>
-                  <a
-                    href="/auth/signup"
-                    className="auth-button auth-button--signup"
-                    title="Sign Up"
-                  >
-                    🚀 Sign Up
-                  </a>
-                </div>
-              )}
-              <ThemeToggle />
-            </div>
-        </div>
-      </div>
-          <nav className="nav">
-            <a href="/" className={`nav-link ${path === '/' && !productID ? 'nav-link--active' : ''}`}>🎬 Trending Videos</a>
-            <a href="/search" className={`nav-link ${path === '/search' ? 'nav-link--active' : ''}`}>🔍 Find Products</a>
-            <a href="/products" className={`nav-link ${path === '/products' ? 'nav-link--active' : ''}`}>🛍️ Top Products</a>
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between px-4">
+        {/* Logo */}
+        <div className="flex items-center gap-8">
+          <a href="/" className="flex items-center gap-2 text-2xl font-bold">
+            <span className="text-foreground">social</span>
+            <span className="text-primary">1</span>
+          </a>
+          
+          {/* Navigation Tabs */}
+          <nav className="hidden md:flex items-center gap-1">
+            <a
+              href="/"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                pathname === '/' && !productID
+                  ? 'text-foreground bg-muted'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              }`}
+            >
+              <Video className="h-4 w-4" />
+              Videos
+            </a>
+            <a
+              href="/search"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                pathname === '/search'
+                  ? 'text-primary bg-primary/10 border border-primary/20'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              }`}
+            >
+              <Search className="h-4 w-4" />
+              Find Products
+            </a>
+            <a
+              href="/products"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                pathname === '/products'
+                  ? 'text-primary bg-primary/10 border border-primary/20'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              }`}
+            >
+              <ShoppingBag className="h-4 w-4" />
+              Products
+            </a>
             {session && (
-              <a href="/analytics" className={`nav-link ${path === '/analytics' ? 'nav-link--active' : ''}`}>📊 Analytics</a>
+              <a
+                href="/analytics"
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === '/analytics'
+                    ? 'text-foreground bg-muted'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                <BarChart3 className="h-4 w-4" />
+                Analytics
+              </a>
             )}
           </nav>
+        </div>
+
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-3">
+          <CompactViewToggle />
+          <AutoRefreshToggle />
+          <button
+            onClick={() => setShowFavorites(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            title="View Favorites"
+          >
+            <Star className="h-4 w-4" />
+            <span className="hidden sm:inline">Favorites</span>
+          </button>
+          <ThemeToggle />
+          {session ? (
+            <div className="flex items-center gap-2">
+              <a
+                href="/dashboard"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                title="Dashboard"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">{session.user.name}</span>
+              </a>
+              <button
+                onClick={() => signOut()}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => signIn()}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                title="Sign In"
+              >
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign In</span>
+              </button>
+              <a
+                href="/auth/signup"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                title="Sign Up"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign Up</span>
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
 
       {showFavorites && (
         <>
           <div 
-            className="favorites-backdrop" 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1999]" 
             onClick={() => setShowFavorites(false)}
           />
           <FavoritesList onClose={() => setShowFavorites(false)} />

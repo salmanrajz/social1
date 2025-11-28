@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import VideoCard from './components/VideoCard';
 import VideoCardSkeleton from './components/VideoCardSkeleton';
-import ModernHeader from './components/ModernHeader';
+import Header from './components/Header';
 import KeyboardShortcuts from './components/KeyboardShortcuts';
 import { useCompactView } from './components/CompactView';
 import { CompactVideoCard } from './components/CompactView';
@@ -137,10 +137,10 @@ export default function Home() {
   const currentPage = state.page + 1; // Display as 1-indexed
 
   return (
-    <div className="container">
-      <ModernHeader />
+    <div className="min-h-screen bg-background">
+      <Header />
       
-      <main className="main-content">
+      <main className="container px-4 py-8">
         {!productID && (
           <PerformanceComparison 
             currentData={{ data: videos }}
