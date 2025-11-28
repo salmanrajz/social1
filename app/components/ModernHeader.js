@@ -16,14 +16,11 @@ export default function ModernHeader() {
   const productID = searchParams.get('productID');
   const path = typeof window !== 'undefined' ? window.location.pathname : '';
 
-  let title = "🔥 TikTok Viral Trends";
   let description = "Discover what's trending and going viral on TikTok";
 
   if (path === '/search') {
-    title = "🛍️ Product Finder";
     description = "Search for trending TikTok products and see what's selling";
   } else if (path === '/products') {
-    title = "🛍️ Top Viral Products";
     description = "Discover the hottest trending products on TikTok";
   } else if (productID) {
     description = "Videos featuring this product";
@@ -36,8 +33,10 @@ export default function ModernHeader() {
           {/* Logo and Brand */}
           <div className="header-brand">
             <div className="logo">
-              <span className="logo-icon">🎵</span>
-              <span className="logo-text">ViralTrends</span>
+              <span className="logo-text">
+                <span>social</span>
+                <span style={{ color: 'var(--primary-color)' }}>1</span>
+              </span>
             </div>
             <div className="brand-tagline">
               {description}
