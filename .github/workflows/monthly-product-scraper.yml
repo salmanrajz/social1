@@ -1,0 +1,41 @@
+name: Monthly Trending Products Scraper
+
+on:
+  schedule:
+    # Run on the 1st day of each month at 9:00 AM UTC
+    - cron: '0 9 1 * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  scrape-trending-products:
+    runs-on: ubuntu-latest
+    environment: SUPABASE_KEY  # Use the Supabase key environment
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install @supabase/supabase-js
+      
+    - name: Run monthly product scraper
+      env:
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      run: node github-action-product-monthly-scraper.js
+      
+    - name: Notify on success
+      if: success()
+      run: echo "✅ Monthly product scraping completed successfully at $(date)"
+      
+    - name: Notify on failure
+      if: failure()
+      run: echo "❌ Monthly product scraping failed at $(date)"
+
