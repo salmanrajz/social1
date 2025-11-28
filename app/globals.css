@@ -4279,10 +4279,10 @@ body {
 
 .logo {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-weight: 700;
-  font-size: 1.25rem;
+  align-items: baseline;
+  gap: 0;
+  font-weight: 800;
+  font-size: 1.5rem;
   color: var(--text-primary);
 }
 
@@ -4291,10 +4291,16 @@ body {
 }
 
 .logo-text {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.logo-text span:first-child {
+  color: var(--text-primary);
+}
+
+.logo-text span:last-child {
+  color: var(--primary-color);
 }
 
 .brand-tagline {
