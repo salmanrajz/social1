@@ -15,14 +15,14 @@ export default function Header() {
   const productID = searchParams.get('productID');
   const path = typeof window !== 'undefined' ? window.location.pathname : '';
 
-  let title = "🔥 TikTok Viral Trends";
+  let title = "social1";
   let description = "Discover what's trending and going viral on TikTok";
 
   if (path === '/search') {
-    title = "🛍️ Product Finder";
+    title = "social1";
     description = "Search for trending TikTok products and see what's selling";
   } else if (path === '/products') {
-    title = "🛍️ Top Viral Products";
+    title = "social1";
     description = "Discover the hottest trending products on TikTok";
   } else if (productID) {
     description = "Videos featuring this product";
@@ -32,7 +32,10 @@ export default function Header() {
     <header className="header">
       <div className="header-content">
         <div className="header-left">
-          <h1>{title}</h1>
+          <h1>
+            <span>social</span>
+            <span>1</span>
+          </h1>
           <p>{description}</p>
         </div>
         <div className="header-right">
