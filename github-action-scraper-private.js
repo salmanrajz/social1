@@ -19,9 +19,9 @@ async function fetchPage(offset, limit) {
       headers: {
         'accept': '*/*',
         'accept-language': 'en-US,en;q=0.9',
-        'cookie': '__Host-next-auth.csrf-token=64f312499e994880d224722ffc1b80687dad024564f0213cd5257f465bc0e83d%7C9a3cc9efff14182a7ea157bfa03a2e8d55f45fbc75817b56b7a8b85c0d4eff9b; __Secure-next-auth.callback-url=https%3A%2F%2Ftiktok.wakanz.com%2Fauth%2Fsignin%3FcallbackUrl%3Dhttps%253A%252F%252Ftiktok.wakanz.com%252F; site_password=777888; site_expires=1760894073430; site_duration=30 minutes; __Secure-next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..Xn9xPJ2kggvCrTTz.03Dbq0fYI_Nuc6PlrSDiezbhLOQYE8WK9vHC9OaQJC5b_zabEyL_ScFeE9ij5SwxVejn6fb_MWaUuCLox9I-2leICzwY1xP7snKHIvCAwqLHamfZC4siWYwYQpSVWM4vQURgTS41QD89I4WNOrdwCumqTAZDOz229Uyu_g8WiXKv_-QJY88iI15mzWjwBqeYVQFBmDLKUOzzxxWFChb8TOlKPG-sxs86Qdbsc4lRfQQxAxjc39E2d9dZH4lFnM-WxdUxvT_JqWP4JvPGEGzartQgEnWIDV_AEnF95mTHE5Q.8y_n-f6a4r5bbP-Xz6TqFw',
+        'cookie': '__Host-next-auth.csrf-token=f51822931a3938e7183214610b3fced33a88ca6f264cf9166d2a1986f8f410f0%7C92eb36b3d0b8973afc2041cb3bc5ffd4a9361f8a66e3a48bac8c0f765c180f8a; __Secure-next-auth.callback-url=https%3A%2F%2Fwww.social1.ai%2Fsignin%3Fsession_id%3Dcs_live_b1s6Kp1ojl2hgxNMMrcljVhZKLoXyVmmjR7GclJTXB7aJqtyZ43yDB6n1x; __Secure-next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..Oef4l1RtNJdbdTSf.F3bPFk6qRnUQCj1OCn_Kg0uI_8USN1jg_EtZasxf7s8dwreSRKnXaYHdhlSnb0Jh8esblmsBmnkz0VK_4pU8TjMwlKdw3D1gpfU09oVmH_uj5HM7sa31-rFj62mXjxERZhgSa0NykJTQ9ZUuApmMJH1nISdiBQtQCBg7-iy_F4jAhstahJy1lWByba5pQqfVY2Jfg3UYLS6Yn_DiBifnvuTXFYJuXczsnmqUB-lN7k2uUxrJ7dPXFLOmY7b8tXVQegDJg7MS9IXzUv9l3e9N6T0dZkQu46jSwz0X7q2RZEjMV8iszDJogVT7D29ELrJYWd4llio9aHWsAoPLQUYL-5HzqYAfAQFUcNQezDpnLI3XHL26.KgNgtt-J0WqXBiz-c35-7g; ph_phc_LvsHwkuAh5ZkWAADNlrGGfG14aaUsBNwOckji9YooKX_posthog=%7B%22distinct_id%22%3A%2269297fa73c7d3579dd7a46e0%22%2C%22%24sesid%22%3A%5B1764327430925%2C%22019aca1a-5616-710b-8899-e9496784aa55%22%2C1764327314966%5D%2C%22%24epp%22%3Atrue%2C%22%24initial_person_info%22%3A%7B%22r%22%3A%22%24direct%22%2C%22u%22%3A%22https%3A%2F%2Fwww.social1.ai%2F%22%7D%7D',
         'priority': 'u=1, i',
-        'referer': 'https://tiktok.wakanz.com/',
+        'referer': 'https://www.social1.ai/',
         'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"macOS"',
@@ -49,11 +49,19 @@ async function fetchPage(offset, limit) {
 
     req.on('error', (error) => {
       console.error(`❌ Request error page ${Math.floor(offset/limit) + 1}:`, error.message);
+      // Retry logic: if it's a network error, wait and retry once
+      if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.message.includes('hang up')) {
+        console.log(`🔄 Retrying page ${Math.floor(offset/limit) + 1} after network error...`);
+        setTimeout(() => {
+          fetchPage(offset, limit).then(resolve).catch(() => resolve([]));
+        }, 3000);
+        return;
+      }
       resolve([]);
     });
     
-    req.setTimeout(15000, () => {
-      console.error(`⏰ Timeout page ${Math.floor(offset/limit) + 1}`);
+    req.setTimeout(30000, () => {
+      console.error(`⏰ Timeout page ${Math.floor(offset/limit) + 1} (30s timeout)`);
       req.destroy();
       resolve([]);
     });
@@ -72,7 +80,7 @@ async function fetchAllProducts() {
   
   console.log('📡 Fetching products using API\'s original ranking...');
   
-  while (allProducts.length < targetProducts && page <= 25) {
+  while (allProducts.length < targetProducts && page <= 50) {
     console.log(`📄 Page ${page} (offset: ${offset}, limit: ${limit})...`);
     
     const products = await fetchPage(offset, limit);
@@ -88,8 +96,8 @@ async function fetchAllProducts() {
     offset += 1;
     page++;
     
-    // Small delay between requests
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Small delay between requests (increased to avoid rate limiting)
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
   
   console.log(`🎯 Fetched ${allProducts.length} products total`);

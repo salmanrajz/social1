@@ -29,7 +29,7 @@ jobs:
     - name: Run daily scraper
       env:
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      run: node github-action-scraper.js
+      run: node github-action-scraper-private.js
       
     - name: Notify on success
       if: success()

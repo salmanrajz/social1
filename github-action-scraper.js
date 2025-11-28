@@ -3,7 +3,7 @@ const https = require('https');
 const { createClient } = require('@supabase/supabase-js');
 
 // Supabase configuration
-const supabaseUrl = process.env.SUPABASE_URL || 'https://your-project.supabase.co';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://edgitshcqelilcjkndho.supabase.co';
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseKey) {
@@ -13,16 +13,34 @@ if (!supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const productsPerRegion = (() => {
+  const raw = process.env.PRODUCTS_PER_REGION || process.env.TIKTOK_PRODUCTS_PER_REGION;
+  if (!raw) {
+    return 240;
+  }
+
+  const parsed = parseInt(raw, 10);
+  if (!Number.isNaN(parsed) && parsed >= 12) {
+    return parsed;
+  }
+
+  console.warn(`⚠️ Invalid PRODUCTS_PER_REGION value "${raw}". Falling back to 240 per region.`);
+  return 240;
+})();
+
 // Fetch single page from TikTok API via proxy service
 async function fetchPage(offset, limit) {
   return new Promise((resolve) => {
+    const proxyHostname = process.env.PROXY_HOSTNAME || process.env.API_HOSTNAME || 'your-proxy-api.com';
+    const apiKey = process.env.PROXY_API_KEY || process.env.API_KEY;
+    
     const options = {
-      hostname: 'your-proxy-api.com', // Replace with your proxy service
+      hostname: proxyHostname,
       port: 443,
       path: `/api/tiktok-products?region=uk&days=1&limit=${limit}&offset=${offset}`,
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${process.env.API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
       }
@@ -33,11 +51,30 @@ async function fetchPage(offset, limit) {
       res.on('data', (chunk) => data += chunk);
       res.on('end', () => {
         try {
+          // Check HTTP status code
+          if (res.statusCode !== 200) {
+            console.error(`❌ HTTP ${res.statusCode} error page ${Math.floor(offset/limit) + 1}: ${data.substring(0, 200)}`);
+            resolve([]);
+            return;
+          }
+          
           const jsonData = JSON.parse(data);
-          const products = jsonData.results || [];
+          
+          // Handle proxy API response structure: { success: true, data: { results: [...] } }
+          // or direct API response: { results: [...] }
+          let products = [];
+          if (jsonData.success && jsonData.data) {
+            products = jsonData.data.results || jsonData.data || [];
+          } else if (jsonData.results) {
+            products = jsonData.results;
+          } else if (Array.isArray(jsonData)) {
+            products = jsonData;
+          }
+          
           resolve(products);
         } catch (error) {
           console.error(`❌ Parse error page ${Math.floor(offset/limit) + 1}:`, error.message);
+          console.error(`Response data: ${data.substring(0, 500)}`);
           resolve([]);
         }
       });
@@ -212,6 +249,8 @@ async function main() {
     console.log(`SUPABASE_URL exists: ${!!process.env.SUPABASE_URL}`);
     console.log(`SUPABASE_KEY exists: ${!!process.env.SUPABASE_KEY}`);
     console.log(`API_KEY exists: ${!!process.env.API_KEY}`);
+    console.log(`PROXY_API_KEY exists: ${!!process.env.PROXY_API_KEY}`);
+    console.log(`PROXY_HOSTNAME exists: ${!!process.env.PROXY_HOSTNAME}`);
     
     // Test Supabase connection
     await testConnection();
