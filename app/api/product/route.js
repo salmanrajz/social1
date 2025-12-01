@@ -144,18 +144,17 @@ export async function GET(request) {
     // Return the data with CORS headers
     return NextResponse.json(data, {
       status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+      headers: getCorsHeaders(request),
     });
 
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
       { error: 'Failed to fetch products', details: error.message },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: getCorsHeaders(request)
+      }
     );
   }
 }
@@ -253,18 +252,17 @@ export async function POST(request) {
     // Return the data with CORS headers
     return NextResponse.json(data, {
       status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+      headers: getCorsHeaders(request),
     });
 
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
       { error: 'Failed to fetch products', details: error.message },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: getCorsHeaders(request)
+      }
     );
   }
 }
