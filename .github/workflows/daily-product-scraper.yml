@@ -39,3 +39,4 @@ jobs:
       if: failure()
       run: echo "❌ Daily product scraping failed at $(date)"
 
+

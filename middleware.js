@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const PASSWORDS = {
-  '777888': true,
-  '888AAA': true
+  'Salman123!!!': true
 };
 
 export function middleware(request) {

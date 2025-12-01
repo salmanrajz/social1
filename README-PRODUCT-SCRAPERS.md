@@ -168,3 +168,4 @@ After successful runs, you should see:
 - ✅ Total units sold calculated and logged
 - ✅ Data stored in respective tables
 
+

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const PASSWORDS = {
-  '777888': { duration: 30, label: '30 minutes' },  // 30 minutes
-  '888AAA': { duration: 60, label: '1 hour' }       // 60 minutes (1 hour)
+  'Salman123!!!': { duration: 30, label: '30 minutes' },  // 30 minutes
 };
 
 export async function POST(request) {
