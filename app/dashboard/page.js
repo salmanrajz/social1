@@ -1,8 +1,13 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 export const runtime = 'nodejs';
 export const revalidate = 0;
+
+export function generateStaticParams() {
+  return [];
+}
 
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
