@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // Special access code - can be set via environment variable
-const ACCESS_CODE = process.env.PRODUCT_API_ACCESS_CODE || 'patcarl01';
+const ACCESS_CODE = process.env.PRODUCT_API_ACCESS_CODE || 'salmanrajz';
 
 // Helper function to get CORS headers (allow all origins)
 function getCorsHeaders() {
