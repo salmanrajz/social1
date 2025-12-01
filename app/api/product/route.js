@@ -79,33 +79,14 @@ function checkAccessCode(request) {
 
 export async function GET(request) {
   try {
-    // Check CORS origin (strict mode - requires origin header)
-    // This blocks Postman, curl, and other tools unless they include a valid Origin header
-    const originCheck = shouldAllowRequest(request, true);
-    if (!originCheck.allowed) {
-      const origin = request.headers.get('origin');
-      console.warn(`Blocked request from origin: ${origin || 'NO ORIGIN HEADER'}`);
-      return NextResponse.json(
-        { 
-          error: 'Forbidden', 
-          message: originCheck.reason,
-          hint: 'Only requests from allowed origins are permitted. Add Origin header or contact admin to whitelist your domain.'
-        },
-        { 
-          status: 403,
-          headers: getCorsHeaders(request)
-        }
-      );
-    }
-
-    // Check access code
+    // Check access code authentication
     const providedCode = checkAccessCode(request);
     if (!providedCode || providedCode !== ACCESS_CODE) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Invalid or missing access code' },
         { 
           status: 401,
-          headers: getCorsHeaders(request)
+          headers: getCorsHeaders()
         }
       );
     }
@@ -189,25 +170,6 @@ export async function GET(request) {
 // Handle POST requests
 export async function POST(request) {
   try {
-    // Check CORS origin (strict mode - requires origin header)
-    // This blocks Postman, curl, and other tools unless they include a valid Origin header
-    const originCheck = shouldAllowRequest(request, true);
-    if (!originCheck.allowed) {
-      const origin = request.headers.get('origin');
-      console.warn(`Blocked POST request from origin: ${origin || 'NO ORIGIN HEADER'}`);
-      return NextResponse.json(
-        { 
-          error: 'Forbidden', 
-          message: originCheck.reason,
-          hint: 'Only requests from allowed origins are permitted. Add Origin header or contact admin to whitelist your domain.'
-        },
-        { 
-          status: 403,
-          headers: getCorsHeaders(request)
-        }
-      );
-    }
-
     // Parse request body
     const body = await request.json().catch(() => ({}));
     
@@ -216,12 +178,13 @@ export async function POST(request) {
     const codeFromHeader = request.headers.get('x-access-code') || request.headers.get('access-code');
     const providedCode = codeFromBody || codeFromHeader;
     
+    // Check access code authentication
     if (!providedCode || providedCode !== ACCESS_CODE) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Invalid or missing access code' },
         { 
           status: 401,
-          headers: getCorsHeaders(request)
+          headers: getCorsHeaders()
         }
       );
     }
@@ -286,7 +249,7 @@ export async function POST(request) {
     // Return the data with CORS headers
     return NextResponse.json(data, {
       status: 200,
-      headers: getCorsHeaders(request),
+      headers: getCorsHeaders(),
     });
 
   } catch (error) {
@@ -295,7 +258,7 @@ export async function POST(request) {
       { error: 'Failed to fetch products', details: error.message },
       { 
         status: 500,
-        headers: getCorsHeaders(request)
+        headers: getCorsHeaders()
       }
     );
   }
@@ -303,21 +266,9 @@ export async function POST(request) {
 
 // Handle OPTIONS requests for CORS preflight
 export async function OPTIONS(request) {
-  const origin = request.headers.get('origin');
-  
-  // If origin is not allowed, return 403
-  if (origin && !isOriginAllowed(origin)) {
-    return new Response(null, {
-      status: 403,
-      headers: {
-        'Access-Control-Allow-Origin': 'null',
-      },
-    });
-  }
-
   return new Response(null, {
     status: 200,
-    headers: getCorsHeaders(request),
+    headers: getCorsHeaders(),
   });
 }
 
