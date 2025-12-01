@@ -4,13 +4,16 @@ import { NextResponse } from 'next/server';
 const ACCESS_CODE = process.env.PRODUCT_API_ACCESS_CODE || 'patcarl01';
 
 // Allowed origins for CORS - can be set via environment variable (comma-separated)
+// Only these origins can access the API. Postman/curl without valid origin will be blocked.
 const ALLOWED_ORIGINS = process.env.PRODUCT_API_ALLOWED_ORIGINS 
   ? process.env.PRODUCT_API_ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
   : [
       'http://localhost:3000',
       'http://localhost:3001',
       'https://www.social1.ai',
-      'https://social1.ai'
+      'https://social1.ai',
+      'https://tiktok.wakanz.com',
+      'https://www.tiktok.wakanz.com'
     ];
 
 // Helper function to check if origin is allowed
@@ -77,10 +80,17 @@ function checkAccessCode(request) {
 export async function GET(request) {
   try {
     // Check CORS origin (strict mode - requires origin header)
+    // This blocks Postman, curl, and other tools unless they include a valid Origin header
     const originCheck = shouldAllowRequest(request, true);
     if (!originCheck.allowed) {
+      const origin = request.headers.get('origin');
+      console.warn(`Blocked request from origin: ${origin || 'NO ORIGIN HEADER'}`);
       return NextResponse.json(
-        { error: 'Forbidden', message: originCheck.reason },
+        { 
+          error: 'Forbidden', 
+          message: originCheck.reason,
+          hint: 'Only requests from allowed origins are permitted. Add Origin header or contact admin to whitelist your domain.'
+        },
         { 
           status: 403,
           headers: getCorsHeaders(request)
@@ -180,10 +190,17 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     // Check CORS origin (strict mode - requires origin header)
+    // This blocks Postman, curl, and other tools unless they include a valid Origin header
     const originCheck = shouldAllowRequest(request, true);
     if (!originCheck.allowed) {
+      const origin = request.headers.get('origin');
+      console.warn(`Blocked POST request from origin: ${origin || 'NO ORIGIN HEADER'}`);
       return NextResponse.json(
-        { error: 'Forbidden', message: originCheck.reason },
+        { 
+          error: 'Forbidden', 
+          message: originCheck.reason,
+          hint: 'Only requests from allowed origins are permitted. Add Origin header or contact admin to whitelist your domain.'
+        },
         { 
           status: 403,
           headers: getCorsHeaders(request)
