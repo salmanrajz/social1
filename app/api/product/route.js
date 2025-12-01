@@ -39,7 +39,19 @@ export async function GET(request) {
     });
 
     if (!response.ok) {
-      throw new Error(`TikTok Wakanz API request failed: ${response.status} ${response.statusText}`);
+      // Try to get error details from response
+      let errorDetails = response.statusText;
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorDetails = errorText.substring(0, 500); // Limit error text length
+        }
+      } catch (e) {
+        // Ignore if we can't read error body
+      }
+      console.error(`TikTok Wakanz API error (${response.status}):`, errorDetails);
+      console.error('Request URL:', apiUrl.toString());
+      throw new Error(`TikTok Wakanz API request failed: ${response.status} ${errorDetails}`);
     }
 
     const data = await response.json();
