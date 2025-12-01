@@ -1,6 +1,8 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = 0;
 
 import { useState } from 'react';
 import ModernHeader from '../components/ModernHeader';

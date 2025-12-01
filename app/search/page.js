@@ -1,8 +1,10 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = 0;
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import ModernHeader from '../components/ModernHeader';
 import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import KeyboardShortcuts from '../components/KeyboardShortcuts';

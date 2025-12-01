@@ -1,8 +1,10 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = 0;
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import VideoCard from './components/VideoCard';
 import VideoCardSkeleton from './components/VideoCardSkeleton';
@@ -25,7 +27,7 @@ const currencyFormat = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const productID = searchParams.get('productID');
   const { isCompact } = useCompactView();
@@ -311,5 +313,13 @@ export default function Home() {
         <AutoRefreshToggle onRefresh={fetchVideos} />
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
