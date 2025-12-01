@@ -2,12 +2,9 @@
 
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
+export const fetchCache = 'force-no-store';
 export const runtime = 'nodejs';
 export const revalidate = 0;
-
-export function generateStaticParams() {
-  return [];
-}
 
 import ModernHeader from '../components/ModernHeader';
 import { AlertsManager } from '../components/TrendAlerts';

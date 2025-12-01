@@ -2,13 +2,9 @@
 
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
+export const fetchCache = 'force-no-store';
 export const runtime = 'nodejs';
 export const revalidate = 0;
-
-// Prevent static generation
-export function generateStaticParams() {
-  return [];
-}
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';

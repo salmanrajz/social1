@@ -173,6 +173,8 @@ const nextConfig = {
   images: {
     domains: ['www.social1.ai', 'placehold.co'],
   },
+  // Disable static optimization for all pages
+  output: 'standalone',
   async headers() {
     return [
       {
