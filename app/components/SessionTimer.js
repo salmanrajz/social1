@@ -9,6 +9,11 @@ export default function SessionTimer() {
   const router = useRouter();
 
   useEffect(() => {
+    // Skip during SSR/build
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
     // Get cookies
     const getCookie = (name) => {
       const value = `; ${document.cookie}`;
