@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import ModernHeader from '../components/ModernHeader';
 import ProductCardSkeleton from '../components/ProductCardSkeleton';
