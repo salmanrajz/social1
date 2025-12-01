@@ -28,6 +28,23 @@ function isOriginAllowed(origin) {
   });
 }
 
+// Check if request should be allowed (strict mode requires origin)
+function shouldAllowRequest(request, strictMode = true) {
+  const origin = request.headers.get('origin');
+  
+  // In strict mode, require origin header
+  if (strictMode && !origin) {
+    return { allowed: false, reason: 'Origin header is required' };
+  }
+  
+  // If origin is provided, it must be in allowed list
+  if (origin && !isOriginAllowed(origin)) {
+    return { allowed: false, reason: 'Origin not allowed' };
+  }
+  
+  return { allowed: true };
+}
+
 // Helper function to get CORS headers
 function getCorsHeaders(request) {
   const origin = request.headers.get('origin');
@@ -59,11 +76,11 @@ function checkAccessCode(request) {
 
 export async function GET(request) {
   try {
-    // Check CORS origin
-    const origin = request.headers.get('origin');
-    if (origin && !isOriginAllowed(origin)) {
+    // Check CORS origin (strict mode - requires origin header)
+    const originCheck = shouldAllowRequest(request, true);
+    if (!originCheck.allowed) {
       return NextResponse.json(
-        { error: 'Forbidden', message: 'Origin not allowed' },
+        { error: 'Forbidden', message: originCheck.reason },
         { 
           status: 403,
           headers: getCorsHeaders(request)
@@ -162,11 +179,11 @@ export async function GET(request) {
 // Handle POST requests
 export async function POST(request) {
   try {
-    // Check CORS origin
-    const origin = request.headers.get('origin');
-    if (origin && !isOriginAllowed(origin)) {
+    // Check CORS origin (strict mode - requires origin header)
+    const originCheck = shouldAllowRequest(request, true);
+    if (!originCheck.allowed) {
       return NextResponse.json(
-        { error: 'Forbidden', message: 'Origin not allowed' },
+        { error: 'Forbidden', message: originCheck.reason },
         { 
           status: 403,
           headers: getCorsHeaders(request)
