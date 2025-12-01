@@ -30,15 +30,8 @@ const currencyFormat = new Intl.NumberFormat("en-US", {
 });
 
 function HomeContent() {
-  // Safely get search params
-  let productID = null;
-  try {
-    const searchParams = useSearchParams();
-    productID = searchParams.get('productID');
-  } catch (e) {
-    // During build, useSearchParams might not be available
-    console.log('useSearchParams not available during build');
-  }
+  const searchParams = useSearchParams();
+  const productID = searchParams.get('productID');
   const { isCompact } = useCompactView();
   const { triggerRefresh } = useAutoRefresh();
   const { trackPageView, trackPagination } = useAnalytics();
