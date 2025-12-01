@@ -3,61 +3,12 @@ import { NextResponse } from 'next/server';
 // Special access code - can be set via environment variable
 const ACCESS_CODE = process.env.PRODUCT_API_ACCESS_CODE || 'patcarl01';
 
-// Allowed origins for CORS - can be set via environment variable (comma-separated)
-// Only these origins can access the API. Postman/curl without valid origin will be blocked.
-const ALLOWED_ORIGINS = process.env.PRODUCT_API_ALLOWED_ORIGINS 
-  ? process.env.PRODUCT_API_ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-  : [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://www.social1.ai',
-      'https://social1.ai',
-      'https://tiktok.wakanz.com',
-      'https://www.tiktok.wakanz.com'
-    ];
-
-// Helper function to check if origin is allowed
-function isOriginAllowed(origin) {
-  if (!origin) return false;
-  return ALLOWED_ORIGINS.some(allowed => {
-    // Exact match
-    if (origin === allowed) return true;
-    // Wildcard subdomain support (e.g., *.example.com)
-    if (allowed.startsWith('*.')) {
-      const domain = allowed.substring(2);
-      return origin.endsWith(domain);
-    }
-    return false;
-  });
-}
-
-// Check if request should be allowed (strict mode requires origin)
-function shouldAllowRequest(request, strictMode = true) {
-  const origin = request.headers.get('origin');
-  
-  // In strict mode, require origin header
-  if (strictMode && !origin) {
-    return { allowed: false, reason: 'Origin header is required' };
-  }
-  
-  // If origin is provided, it must be in allowed list
-  if (origin && !isOriginAllowed(origin)) {
-    return { allowed: false, reason: 'Origin not allowed' };
-  }
-  
-  return { allowed: true };
-}
-
-// Helper function to get CORS headers
-function getCorsHeaders(request) {
-  const origin = request.headers.get('origin');
-  const allowedOrigin = origin && isOriginAllowed(origin) ? origin : null;
-  
+// Helper function to get CORS headers (allow all origins)
+function getCorsHeaders() {
   return {
-    'Access-Control-Allow-Origin': allowedOrigin || 'null',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Access-Code, Access-Code',
-    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Max-Age': '86400', // 24 hours
   };
 }
@@ -152,7 +103,7 @@ export async function GET(request) {
     // Return the data with CORS headers
     return NextResponse.json(data, {
       status: 200,
-      headers: getCorsHeaders(request),
+      headers: getCorsHeaders(),
     });
 
   } catch (error) {
@@ -161,7 +112,7 @@ export async function GET(request) {
       { error: 'Failed to fetch products', details: error.message },
       { 
         status: 500,
-        headers: getCorsHeaders(request)
+        headers: getCorsHeaders()
       }
     );
   }
