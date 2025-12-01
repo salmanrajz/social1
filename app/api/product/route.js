@@ -3,6 +3,45 @@ import { NextResponse } from 'next/server';
 // Special access code - can be set via environment variable
 const ACCESS_CODE = process.env.PRODUCT_API_ACCESS_CODE || 'patcarl01';
 
+// Allowed origins for CORS - can be set via environment variable (comma-separated)
+const ALLOWED_ORIGINS = process.env.PRODUCT_API_ALLOWED_ORIGINS 
+  ? process.env.PRODUCT_API_ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://www.social1.ai',
+      'https://social1.ai'
+    ];
+
+// Helper function to check if origin is allowed
+function isOriginAllowed(origin) {
+  if (!origin) return false;
+  return ALLOWED_ORIGINS.some(allowed => {
+    // Exact match
+    if (origin === allowed) return true;
+    // Wildcard subdomain support (e.g., *.example.com)
+    if (allowed.startsWith('*.')) {
+      const domain = allowed.substring(2);
+      return origin.endsWith(domain);
+    }
+    return false;
+  });
+}
+
+// Helper function to get CORS headers
+function getCorsHeaders(request) {
+  const origin = request.headers.get('origin');
+  const allowedOrigin = origin && isOriginAllowed(origin) ? origin : null;
+  
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin || 'null',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Access-Code, Access-Code',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400', // 24 hours
+  };
+}
+
 // Helper function to check access code
 function checkAccessCode(request) {
   // Check query parameter (for GET requests)
@@ -20,12 +59,27 @@ function checkAccessCode(request) {
 
 export async function GET(request) {
   try {
+    // Check CORS origin
+    const origin = request.headers.get('origin');
+    if (origin && !isOriginAllowed(origin)) {
+      return NextResponse.json(
+        { error: 'Forbidden', message: 'Origin not allowed' },
+        { 
+          status: 403,
+          headers: getCorsHeaders(request)
+        }
+      );
+    }
+
     // Check access code
     const providedCode = checkAccessCode(request);
     if (!providedCode || providedCode !== ACCESS_CODE) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Invalid or missing access code' },
-        { status: 401 }
+        { 
+          status: 401,
+          headers: getCorsHeaders(request)
+        }
       );
     }
 
@@ -109,6 +163,18 @@ export async function GET(request) {
 // Handle POST requests
 export async function POST(request) {
   try {
+    // Check CORS origin
+    const origin = request.headers.get('origin');
+    if (origin && !isOriginAllowed(origin)) {
+      return NextResponse.json(
+        { error: 'Forbidden', message: 'Origin not allowed' },
+        { 
+          status: 403,
+          headers: getCorsHeaders(request)
+        }
+      );
+    }
+
     // Parse request body
     const body = await request.json().catch(() => ({}));
     
@@ -120,7 +186,10 @@ export async function POST(request) {
     if (!providedCode || providedCode !== ACCESS_CODE) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Invalid or missing access code' },
-        { status: 401 }
+        { 
+          status: 401,
+          headers: getCorsHeaders(request)
+        }
       );
     }
 
@@ -200,15 +269,23 @@ export async function POST(request) {
   }
 }
 
-// Handle OPTIONS requests for CORS
+// Handle OPTIONS requests for CORS preflight
 export async function OPTIONS(request) {
+  const origin = request.headers.get('origin');
+  
+  // If origin is not allowed, return 403
+  if (origin && !isOriginAllowed(origin)) {
+    return new Response(null, {
+      status: 403,
+      headers: {
+        'Access-Control-Allow-Origin': 'null',
+      },
+    });
+  }
+
   return new Response(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Access-Code, Access-Code',
-    },
+    headers: getCorsHeaders(request),
   });
 }
 
